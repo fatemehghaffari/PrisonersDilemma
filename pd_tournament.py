@@ -1,9 +1,19 @@
+#!/usr/bin/env python
+
 import axelrod as axl
 import matplotlib.pyplot as plt
 import pprint
 from itertools import combinations_with_replacement 
 import numpy as np
 import pandas as pd
+import argparse
+
+# To parse command-line argument
+parser = argparse.ArgumentParser()
+parser.add_argument("sample_size", help="Size of samples to run", type=int)
+args = parser.parse_args()
+SUBSET_SIZE = args.sample_size
+print("Subset size: ", SUBSET_SIZE)
 
 # Filter to extract all deterministic and memory-one strategies
 filterset = {
@@ -17,8 +27,6 @@ strategies = axl.filtered_strategies(filterset)
 # Create a list of players that correspond to each of the strategies
 one_mem_players = [s() for s in strategies]
 print('Number of players: ', len(one_mem_players))
-
-SUBSET_SIZE = 3
 
 def run_tournaments(sample_size, list_of_strategies):
     subsets = list(combinations_with_replacement(one_mem_players, sample_size))
@@ -35,25 +43,27 @@ def run_tournaments(sample_size, list_of_strategies):
                 seed=1,
                 )
 
-        # Figure out how to alphabetize the member strategies
         sorted_list = sorted([n.name for n in i])
         names = ','.join(sorted_list)
-        #name = f"{i}".replace(',','_').replace(' ','').strip('()')
         results[f'{i}'] = tournament.play(processes=0)
+        
+        # Collect Group Outcome Metrics
         avg_norm_score =  np.average(results[f'{i}'].normalised_scores)
         avg_norm_coop = np.average(results[f'{i}'].normalised_cooperation)
         data = [names, avg_norm_score, avg_norm_coop]
         col = ['Tournament_Members', 'Avg_Norm_Score', 'Avg_Norm_Cooperation_Rate']
+        
+        # List manipulation to identify individual players in separate columns
         pl_list = list()
         for num, p in enumerate(sorted_list,1):
             pl_list.append(f'Player{num}')
         data = [data[0]]+sorted_list+data[1:]
         col = [col[0]]+pl_list+col[1:]
-        print(data)
-        print(col)
-        data_row = pd.DataFrame(
-                [data], 
-                columns=col)
+        # print(data)
+        # print(col)
+
+        # Store data in pandas dataframe
+        data_row = pd.DataFrame([data], columns=col)
         if i == subsets[0]:
             run_data = data_row
         else:
@@ -65,21 +75,4 @@ def run_tournaments(sample_size, list_of_strategies):
 
 run_tournaments(SUBSET_SIZE, one_mem_players)
 
-    # Return results
-
-
-
-#print('RANKED NAMES by Median Score: ')
-#for name in results.ranked_names:
-#    print(name)
-
-#print('Match lengths: ')
-#pprint.pprint( results.match_lengths)
-
-#for name, norm_score in zip(one_mem_players,results.normalised_scores):
-#    print(name, ' | Normalized Score: ', norm_score)
-
-#plot = axl.Plot(results)
-#p = plot.payoff()
-#p.savefig(f'test_plot.png')
-#p.show()
+    
