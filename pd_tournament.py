@@ -50,8 +50,13 @@ def run_tournaments(sample_size, list_of_strategies):
         # Collect Group Outcome Metrics
         avg_norm_score =  np.average(results[f'{i}'].normalised_scores)
         avg_norm_coop = np.average(results[f'{i}'].normalised_cooperation)
-        data = [names, avg_norm_score, avg_norm_coop]
-        col = ['Tournament_Members', 'Avg_Norm_Score', 'Avg_Norm_Cooperation_Rate']
+        avg_good_partner_rating = np.average(results[f'{i}'].good_partner_rating)
+        avg_eigenmoses_rating = np.average(results[f'{i}'].eigenmoses_rating)
+        avg_eigenjesus_rating = np.average(results[f'{i}'].eigenjesus_rating)
+        data = [names, avg_norm_score, avg_norm_coop, avg_good_partner_rating, 
+                avg_eigenmoses_rating, avg_eigenjesus_rating]
+        col = ['Tournament_Members', 'Avg_Norm_Score', 'Avg_Norm_Cooperation_Rate',
+                'Avg_Good_Partner_Rate', 'Avg_Eigenmoses_Rate', 'Avg_Eigenjesus_Rate']
         
         # List manipulation to identify individual players in separate columns
         pl_list = list()
