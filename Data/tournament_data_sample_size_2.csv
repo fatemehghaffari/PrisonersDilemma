@@ -1,0 +1,56 @@
+Tournament_Members,Player1,Player2,Avg_Norm_Score,Avg_Norm_Cooperation_Rate
+"Alternator,Alternator",Alternator,Alternator,2.0,0.5416666666666666
+"Alternator,Anti Tit For Tat",Alternator,Anti Tit For Tat,2.0,0.5416666666666666
+"Alternator,Bully",Alternator,Bully,1.875,0.47916666666666663
+"Alternator,Cooperator",Alternator,Cooperator,2.75,0.7916666666666666
+"Alternator,Cycler DC",Alternator,Cycler DC,2.5,0.5416666666666666
+"Alternator,Defector",Alternator,Defector,1.75,0.29166666666666663
+"Alternator,Suspicious Tit For Tat",Alternator,Suspicious Tit For Tat,2.5,0.41666666666666663
+"Alternator,Tit For Tat",Alternator,Tit For Tat,2.625,0.7291666666666666
+"Alternator,Win-Shift Lose-Stay",Alternator,Win-Shift Lose-Stay,2.25,0.41666666666666663
+"Alternator,Win-Stay Lose-Shift",Alternator,Win-Stay Lose-Shift,2.25,0.6666666666666666
+"Anti Tit For Tat,Anti Tit For Tat",Anti Tit For Tat,Anti Tit For Tat,2.0,0.5416666666666666
+"Anti Tit For Tat,Bully",Anti Tit For Tat,Bully,2.5,0.5416666666666666
+"Anti Tit For Tat,Cooperator",Anti Tit For Tat,Cooperator,2.625,0.7291666666666666
+"Anti Tit For Tat,Cycler DC",Anti Tit For Tat,Cycler DC,2.375,0.6041666666666666
+"Anti Tit For Tat,Defector",Anti Tit For Tat,Defector,2.5,0.41666666666666663
+"Anti Tit For Tat,Suspicious Tit For Tat",Anti Tit For Tat,Suspicious Tit For Tat,2.25,0.41666666666666663
+"Anti Tit For Tat,Tit For Tat",Anti Tit For Tat,Tit For Tat,2.25,0.6666666666666666
+"Anti Tit For Tat,Win-Shift Lose-Stay",Anti Tit For Tat,Win-Shift Lose-Stay,2.25,0.41666666666666663
+"Anti Tit For Tat,Win-Stay Lose-Shift",Anti Tit For Tat,Win-Stay Lose-Shift,2.375,0.7291666666666666
+"Bully,Bully",Bully,Bully,2.0,0.4583333333333333
+"Bully,Cooperator",Bully,Cooperator,2.5,0.5833333333333333
+"Bully,Cycler DC",Bully,Cycler DC,2.0,0.4583333333333333
+"Bully,Defector",Bully,Defector,2.125,0.2708333333333333
+"Bully,Suspicious Tit For Tat",Bully,Suspicious Tit For Tat,2.25,0.3333333333333333
+"Bully,Tit For Tat",Bully,Tit For Tat,2.25,0.5833333333333333
+"Bully,Win-Shift Lose-Stay",Bully,Win-Shift Lose-Stay,1.875,0.2708333333333333
+"Bully,Win-Stay Lose-Shift",Bully,Win-Stay Lose-Shift,2.25,0.5833333333333333
+"Cooperator,Cooperator",Cooperator,Cooperator,3.0,1.0
+"Cooperator,Cycler DC",Cooperator,Cycler DC,2.75,0.75
+"Cooperator,Defector",Cooperator,Defector,2.5,0.5
+"Cooperator,Suspicious Tit For Tat",Cooperator,Suspicious Tit For Tat,2.875,0.6875
+"Cooperator,Tit For Tat",Cooperator,Tit For Tat,3.0,1.0
+"Cooperator,Win-Shift Lose-Stay",Cooperator,Win-Shift Lose-Stay,2.75,0.625
+"Cooperator,Win-Stay Lose-Shift",Cooperator,Win-Stay Lose-Shift,3.0,1.0
+"Cycler DC,Cycler DC",Cycler DC,Cycler DC,2.0,0.4583333333333333
+"Cycler DC,Defector",Cycler DC,Defector,1.75,0.20833333333333331
+"Cycler DC,Suspicious Tit For Tat",Cycler DC,Suspicious Tit For Tat,2.125,0.2708333333333333
+"Cycler DC,Tit For Tat",Cycler DC,Tit For Tat,2.5,0.5833333333333333
+"Cycler DC,Win-Shift Lose-Stay",Cycler DC,Win-Shift Lose-Stay,2.25,0.3333333333333333
+"Cycler DC,Win-Stay Lose-Shift",Cycler DC,Win-Stay Lose-Shift,2.25,0.5833333333333333
+"Defector,Defector",Defector,Defector,1.0,0.0
+"Defector,Suspicious Tit For Tat",Defector,Suspicious Tit For Tat,1.0,0.0
+"Defector,Tit For Tat",Defector,Tit For Tat,1.375,0.3125
+"Defector,Win-Shift Lose-Stay",Defector,Win-Shift Lose-Stay,1.0,0.0
+"Defector,Win-Stay Lose-Shift",Defector,Win-Stay Lose-Shift,1.75,0.375
+"Suspicious Tit For Tat,Suspicious Tit For Tat",Suspicious Tit For Tat,Suspicious Tit For Tat,1.0,0.0
+"Suspicious Tit For Tat,Tit For Tat",Suspicious Tit For Tat,Tit For Tat,2.5,0.5
+"Suspicious Tit For Tat,Win-Shift Lose-Stay",Suspicious Tit For Tat,Win-Shift Lose-Stay,1.0,0.0
+"Suspicious Tit For Tat,Win-Stay Lose-Shift",Suspicious Tit For Tat,Win-Stay Lose-Shift,2.125,0.4375
+"Tit For Tat,Tit For Tat",Tit For Tat,Tit For Tat,3.0,1.0
+"Tit For Tat,Win-Shift Lose-Stay",Tit For Tat,Win-Shift Lose-Stay,2.625,0.5625
+"Tit For Tat,Win-Stay Lose-Shift",Tit For Tat,Win-Stay Lose-Shift,3.0,1.0
+"Win-Shift Lose-Stay,Win-Shift Lose-Stay",Win-Shift Lose-Stay,Win-Shift Lose-Stay,1.0,0.0
+"Win-Shift Lose-Stay,Win-Stay Lose-Shift",Win-Shift Lose-Stay,Win-Stay Lose-Shift,2.5,0.5
+"Win-Stay Lose-Shift,Win-Stay Lose-Shift",Win-Stay Lose-Shift,Win-Stay Lose-Shift,3.0,1.0
