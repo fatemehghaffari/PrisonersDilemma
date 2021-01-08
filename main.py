@@ -9,13 +9,14 @@ from itertools import zip_longest
 import numpy as np
 import pandas as pd
 import argparse
+from pd_tournament import PdTournament 
 
 # To parse command-line argument
-parser = argparse.ArgumentParser()
-parser.add_argument("sample_size", help="Size of samples to run", type=int)
-args = parser.parse_args()
-SUBSET_SIZE = args.sample_size
-print("Subset size: ", SUBSET_SIZE)
+#parser = argparse.ArgumentParser()
+#parser.add_argument("sample_size", help="Size of samples to run", type=int)
+#args = parser.parse_args()
+#SUBSET_SIZE = args.sample_size
+#print("Subset size: ", SUBSET_SIZE)
 
 # Filter to extract all deterministic and memory-one strategies
 filterset = {
@@ -119,6 +120,11 @@ def run_tournaments(sample_size, list_of_strategies, game=None):
     run_data.to_csv(f'Data/tournament_data_sample_size_{sample_size!r}_gameRPST_{R!r}_{P!r}_{S!r}_{T!r}.csv', index=False)
 
 
-run_tournaments(SUBSET_SIZE, one_mem_players, high_t)  # Games: None, stag, and high_t
-
+#run_tournaments(SUBSET_SIZE, one_mem_players, high_t)  # Games: None, stag, and high_t
+print('creating tournament')
+test_run = PdTournament(tuple(one_mem_players[:4]))
+print('running tournament')
+test_run.run_tournament()
+print('saving tournament data')
+test_run.save_data('delete_this_file')
     

@@ -1,4 +1,7 @@
 
+import axelrod as axl
+import numpy as np
+import pandas as pd
 
 class PdSystem:
     def __init__(self, team_list):
