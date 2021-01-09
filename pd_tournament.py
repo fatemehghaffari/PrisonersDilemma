@@ -35,7 +35,7 @@ class PdTournament:
     """
     def __init__(self, strategy_list, game=None):
         self.player_list = strategy_list
-        self.names = ','.join(sorted([n.name for n in list(strategy_list)]))
+        self.names = ','.join(sorted([n.name for n in strategy_list]))
         self.data = None
         self.game = game
 
@@ -49,7 +49,7 @@ class PdTournament:
         """
         # Instantiate tournament object
         roster = self.player_list
-        print('Instantiating tournament object with these players: ', roster)
+        print('Instantiating tournament object with these players: ', self.names)
         tournament = axl.Tournament(players=roster,
                                     game=self.game,
                                     prob_end=0.1,
