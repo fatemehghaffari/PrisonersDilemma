@@ -4,7 +4,12 @@ import numpy as np
 import pandas as pd
 
 class PdSystem:
-    def __init__(self, team_list):
+    def __init__(self, team_list, game=None):
+        tournament_dict = dict()
+        for num, team in enumerate(team_list,1):
+            new_tour = PdTournament(team, game)
+            new_tour.run_tournament()
+            tournament_dict[f'team{num}'] = new_tour
         self.team_list = team_list  # List of tuples, where tuples
                                     # are teams of player strategies
         self.data = None

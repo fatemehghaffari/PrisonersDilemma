@@ -5,11 +5,12 @@ from axelrod.action import Action
 import matplotlib.pyplot as plt
 import pprint
 from itertools import combinations_with_replacement, combinations 
-from itertools import zip_longest
 import numpy as np
 import pandas as pd
 import argparse
 from pd_tournament import PdTournament 
+from helper_funcs import partitions
+
 
 # To parse command-line argument
 #parser = argparse.ArgumentParser()

@@ -35,6 +35,7 @@ class PdTournament:
     """
     def __init__(self, strategy_list, game=None):
         self.player_list = strategy_list
+        self.names = ','.join(sorted([n.name for n in strategy_list]))
         self.data = None
         self.game = game
 
@@ -53,15 +54,13 @@ class PdTournament:
                                     repetitions=1,
                                     seed=1)
 
-        sorted_list = sorted([n.name for n in roster])
-        names = ','.join(sorted_list)
         results = tournament.play(processes=0)
         
         # Collect Group Outcome Metrics
         avg_norm_score = np.average(results.normalised_scores)
         min_norm_score = np.amin(results.normalised_scores)
         avg_norm_cc_distribution = avg_normalised_state(results, (Action.C,Action.C))
-        data = [names, 
+        data = [self.names, 
                 avg_norm_score,
                 min_norm_score,
                 avg_norm_cc_distribution]
@@ -72,6 +71,7 @@ class PdTournament:
                 'Avg_Norm_CC_Distribution']
         
         # List manipulation to identify individual players in separate columns
+        sorted_list = sorted([n.name for n in roster])
         pl_list = list()
         for num, p in enumerate(sorted_list,1):
             pl_list.append(f'Player{num}')
@@ -80,13 +80,6 @@ class PdTournament:
 
         # Store data in pandas dataframe
         data_row = pd.DataFrame([data], columns=col)
-        #if i == subsets[0]:
-           # run_data = data_row
-        #else:
-         #   run_data = pd.concat([run_data,data_row])
-        #if num % 25 == 0:
-         #   print(num, ' out of ', len(subsets), ' completed.')
-        #run_data.to_csv(f'Data/tournament_data_sample_size_{sample_size!r}_gameRPST_{R!r}_{P!r}_{S!r}_{T!r}.csv', index=False)
         self.data = data_row
 
     def save_data(self, file_name):
