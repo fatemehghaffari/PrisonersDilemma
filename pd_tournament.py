@@ -35,9 +35,12 @@ class PdTournament:
     """
     def __init__(self, strategy_list, game=None):
         self.player_list = strategy_list
-        self.names = ','.join(sorted([n.name for n in strategy_list]))
+        self.names = ','.join(sorted([n.name for n in list(strategy_list)]))
         self.data = None
         self.game = game
+
+    def __repr__(self):
+        return self.names
 
     def run_tournament(self):
         """

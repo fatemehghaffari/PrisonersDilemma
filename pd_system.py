@@ -6,12 +6,15 @@ import pandas as pd
 class PdSystem:
     def __init__(self, team_list, game=None):
         tournament_dict = dict()
+        
+        # Loop through team list and construct tournament instances
+        # for each team. Save each team to the tournament dictionary
         for num, team in enumerate(team_list,1):
             new_tour = PdTournament(team, game)
             new_tour.run_tournament()
             tournament_dict[f'team{num}'] = new_tour
-        self.team_list = team_list  # List of tuples, where tuples
-                                    # are teams of player strategies
+        
+        self.team_dict = tournament_dict                             
         self.data = None
 
     def compute_data(self):
