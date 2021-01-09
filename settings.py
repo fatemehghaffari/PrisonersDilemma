@@ -19,6 +19,11 @@ name_strategy_dict = dict()  # dictionary that maps string names to correspondin
 for name, player in zip(player_names, one_mem_players):
     name_strategy_dict[name]=player
 
+# Dictionary that maps string names to decimal
+name_dec_dict = dict()
+for num, name in enumerate(player_names,1):
+    name_dec_dict[name] = str(num)
+
 # Game type declarations
 stag = axl.game.Game(r=5, s=0, t=3, p=1)
 high_t = axl.game.Game(r=3, s=0, t=7, p=1)

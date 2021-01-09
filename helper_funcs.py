@@ -1,3 +1,6 @@
+import random
+from itertools import combinations
+
 def partitions(set_array, subset_size):
     """
     Generator function that takes an array and integer as input and outputs an iterator
