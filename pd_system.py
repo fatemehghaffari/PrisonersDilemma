@@ -70,12 +70,12 @@ class PdSystem:
         str_list2 = copy.deepcopy(str_list)
         for num, lst in enumerate(str_list):
             dec_list=[settings.name_dec_dict[n] for n in lst]
-            dec_list = '-'.join(dec_list)
+            dec_list = ','.join(dec_list)
             str_list[num] = dec_list
         new_str='_'.join(str_list)
         
         self.id = new_str
-        new_df = pd.DataFrame({'System' : [new_str]}, index=[1])
+        new_df = pd.DataFrame({'System ID' : [new_str]}, index=[1])
         self.data = pd.concat([new_df,sys_df], axis=1)
 
     def save_data(self, path_to_file):

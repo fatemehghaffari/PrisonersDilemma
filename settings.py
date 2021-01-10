@@ -10,8 +10,12 @@ filterset = {
 
 strategies = axl.filtered_strategies(filterset)
 
+# Reduce 30 strategies down to 16 - pre-selected 
+strategy_list = strategies[:12] + [strategies[18], strategies[23], 
+                                   strategies[26], strategies[28]]
+
 # Create a list of players that correspond to each of the strategies
-one_mem_players = [s() for s in strategies]  # list of strategy types
+one_mem_players = [s() for s in strategy_list]  # list of strategy types
 player_names = [n.name for n in one_mem_players]  # list of strings - names
 
 name_strategy_dict = dict()  # dictionary that maps string names to corresponding
