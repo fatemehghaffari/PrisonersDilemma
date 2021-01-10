@@ -7,6 +7,7 @@ import pandas as pd
 import argparse
 from pd_tournament import PdTournament 
 from pd_system import PdSystem
+import pd_exp
 from helper_funcs import partitions
 import settings
 import time
@@ -15,12 +16,12 @@ start_time = time.time()
 
 print('creating partitions')
 part_list = list(partitions(settings.player_names[:16],4))
-print('creating one system')
-test_sys = PdSystem(part_list[0])
-print('Computing data')
-test_sys.compute_data()
-print('Saving system data')
-test_sys.save_data('')
+print('running PD Exp')
+test_pdExp = PdExp(part_list[:10])
+print('Running experiments and computing data')
+test_pdExp.run_experiments()
+print('Saving experiment data')
+test_pdExp.save_data('', 'test_run_10_lists')
 
 print("--- %s seconds ---" % (time.time() - start_time))
 
