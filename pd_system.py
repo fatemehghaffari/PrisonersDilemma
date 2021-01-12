@@ -8,7 +8,12 @@ import copy
 
 class PdSystem:
     def __init__(self, team_list, game=None):
-        self.game = game
+        if game is 'stag':
+            self.game = settings.stag
+        elif game is 'unconv':
+            self.game = settings.high_t
+        else:
+            self.game = game
         tournament_dict = dict()
         
         # Loop through team list and construct tournament instances

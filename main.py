@@ -9,12 +9,22 @@ start_time = time.time()
 
 print('creating partitions')
 part_list = list(partitions(settings.player_names[:16],4))
+
 print('running PD Exp')
-test_pdExp = pd_exp.PdExp(part_list[:10])
+classic_pdExp = pd_exp.PdExp(part_list)
+stag_pdExp = pd_exp.PdExp(part_list,game=settings.stag)
+unconv_pdExp = pd_exp.PdExp(part_list,game=settings.high_t)
+
 print('Running experiments and computing data')
-test_pdExp.run_experiments()
+classic_pdExp.run_experiments()
+stag_pdExp.run_experiments()
+unconv_pdExp.run_experiments()
+
 print('Saving experiment data')
-test_pdExp.save_data('Data/Experiment2/', 'test_run_10_lists')
+path = 'Data/Experiment2/'
+classic_pdExp.save_data(path, 'ClassicPD_4x4_16uniq')
+stag_pdExp.save_data(path, 'StagHunt_4x4_16uniq')
+unconv_pdExp.save_data(path,'UnconvPD_4x4_16uniq')
 
 print("--- %s seconds ---" % (time.time() - start_time))
 
