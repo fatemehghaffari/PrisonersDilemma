@@ -5,7 +5,7 @@ Script and modules for experimentation with the indefinitely, iterated prisoner'
 * Numpy
 * Pandas
 * Install modified Axelrod library from source
-Note: The modified Axelrod library is a fork of the [Axelrod-Python library](https://github.com/Axelrod-Python/Axelrod/tree/master) with some added custom strategies.
+  - Note: The modified Axelrod library is a fork of the [Axelrod-Python library](https://github.com/Axelrod-Python/Axelrod/tree/master) with some added custom strategies.
 #### To install modified Axelrod library from source
 ```
 $ git clone https://github.com/Jessegoodspeed/Axelrod.git
