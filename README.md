@@ -12,3 +12,7 @@ $ git clone https://github.com/Jessegoodspeed/Axelrod.git
 $ cd Axelrod
 $ python setup.py install
 ```
+#### To run script
+```
+$ ./main.py
+```
