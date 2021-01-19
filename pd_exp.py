@@ -59,7 +59,7 @@ class PdTournament:
                                     repetitions=1,
                                     seed=1)
 
-        results = tourn.play(processes=0)
+        results = tourn.play(processes=0)  
         
         # Collect Group Outcome Metrics
         avg_norm_score = np.average(results.normalised_scores)
@@ -189,35 +189,41 @@ class PdExp:
     def run_experiments(self):
         first = True
         list_len = len(self.lp_list)
-        proc_list = []
-        for num, sys in enumerate(self.lp_list):
-            proc = subprocess.Popen(['./new_sys2csv.py', f'{num}'])
-            proc_list.append(proc)
-            print('partition index, list: ', f'{num}', f'{sys}')
+        #proc_list = []
+        for num, sys in enumerate(self.lp_list, 1):
+            #proc = subprocess.Popen(['./new_sys2csv.py', f'{num}', f'{sys}'])
+            #proc_list.append(proc)
+            print('partition list: ', f'{sys!r}')
 
-            #sys_n = PdSystem(sys)
-            #sys_n.compute_data()
+            sys_n = PdSystem(sys, self.game)
+            sys_n.compute_data()
 
-            #if first:
-             #   exp_df = sys_n.data
-              #  first = False
-            #else:
-             #   exp_df = pd.concat([exp_df, sys_n.data])
+            if first:
+                exp_df = sys_n.data
+                first = False
+            else:
+                exp_df = pd.concat([exp_df, sys_n.data])
             print('***Processing number ', num)
+            if (num % 100 == 0):
+                self.data = exp_df
+                ###### Change file_name string below when changing num of strategies (n) used or
+                ###### the number of players in a team (k)
+                self.save_data('Data/Desk/',f'Comb_Sys1to{num}_12strat_4plx3partitions')
+                print(f'System {num} completed and batch saved!')
             if (num % 1000 == 0):
                 print(f'***Reached system {num}. Progress: ', num/list_len, '%')
-        #self.data = exp_df
-        for proc in proc_list:
-            try:
-                outs, errs = proc.communicate(timeout=15)
-                print("Errors: ", errs)
-                print("Outs: ", outs)
-            except subprocess.TimeoutExpired:
-                #proc.kill()
-                #print('Process killed')
-                outs, errs = proc.communicate()
-                print("Errors: ", errs)
-                print("Outs: ", outs)
+        self.data = exp_df
+        #for proc in proc_list:
+        #    try:
+        #        outs, errs = proc.communicate(timeout=120)
+        #        print("Errors: ", errs)
+        #        print("Outs: ", outs)
+        #    except subprocess.TimeoutExpired:
+        #        proc.kill()
+        #        print('Process killed')
+        #        outs, errs = proc.communicate()
+        #        print("Errors: ", errs)
+        #       print("Outs: ", outs)
                 
     def compile_saved_data(self, path_to_directory):
         """
