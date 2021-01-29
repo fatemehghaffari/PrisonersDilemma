@@ -62,8 +62,9 @@ class PdTournament:
         results = tourn.play(processes=0)  
         
         # Collect Group Outcome Metrics
-        avg_norm_score = np.average(results.normalised_scores)
-        min_norm_score = np.amin(results.normalised_scores)
+        normal_scores = results.normalised_scores
+        avg_norm_score = np.average(normal_scores)
+        min_norm_score = np.amin(normal_scores)
         avg_norm_cc_distribution = avg_normalised_state(results, (Action.C,Action.C))
         data = [self.names, 
                 avg_norm_score,
@@ -80,7 +81,14 @@ class PdTournament:
         pl_list = list()
         for num, p in enumerate(sorted_list,1):
             pl_list.append(f'Player{num}')
-        data = [data[0]]+sorted_list+data[1:]
+            pl_list.append(f'P{num}_Norm_Score')
+
+        pl_data_list = list()
+        for name, score in zip(sorted_list, normal_scores):
+            pl_data_list.append(name)
+            pl_data_list.append(score[0])
+
+        data = [data[0]]+pl_data_list+data[1:]
         col = [col[0]]+pl_list+col[1:]
 
         # Store data in pandas dataframe
