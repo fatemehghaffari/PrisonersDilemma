@@ -19,7 +19,7 @@ strategy_list = strategies[:3] + strategies[4:6] + strategies[10:12] + [strategi
 common_strategies = [strategies[11], strategies[14], strategies[18], strategies[23]] 
 
 # Create a list of players that correspond to each of the strategies
-one_mem_players = [s() for s in strategies]  # list of strategy types - change out list for different 
+one_mem_players = [s() for s in common_strategies]  # list of strategy types - change out list for different 
                                                     # experiments: strategies (full list), strategy_list (12 strats)
                                                     # common_strategies (4 strategies)
 player_names = [n.name for n in one_mem_players]  # list of strings - names

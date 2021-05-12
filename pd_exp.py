@@ -35,16 +35,16 @@ class PdTournament:
     Tournament class that defines tournament players and tournament results ('data') and 
     methods to compute and save those results.
     """
-    def __init__(self, strategy_list, game=None):
+    def __init__(self, strategy_list, game=None, reps=1):
         self.player_list = strategy_list
         self.names = ','.join(sorted([n.name for n in strategy_list]))
-        self.data = None
         self.game = game
+        self.data = self.run_tournament(reps)
 
     def __repr__(self):
         return self.names
 
-    def run_tournament(self):
+    def run_tournament(self, reps):
         """
         Method to execute a round-robin tournament with all listed players. Results are 
         computed and stored in data variable as a pandas dataframe.  
@@ -56,7 +56,7 @@ class PdTournament:
                                     game=self.game,
                                     prob_end=0.1,
                                     turns=30,
-                                    repetitions=1,
+                                    repetitions=reps,
                                     seed=1)
 
         results = tourn.play(processes=0)  
@@ -93,7 +93,8 @@ class PdTournament:
 
         # Store data in pandas dataframe
         data_row = pd.DataFrame([data], columns=col)
-        self.data = data_row
+        #self.data = data_row
+        return data_row
 
     def save_data(self, file_name):
         """ Method to save tournament data as a csv file """
