@@ -20,14 +20,15 @@ def avg_normalised_state(results_obj, state_tupl):
 
     grd_ttl = 0
     for x in norm_state_dist:
+        #  For-loop iterates through each player's stats
         for bunch in grouper(x,num_of_players):
             totl = 0
             for pl in range(num_of_players):
                 i = bunch[pl]
-                totl += i[state_tupl]
-            Ttl=totl/(num_of_players-1)
+                totl += i[state_tupl]  # Each player's CC distribution (one for each opponent) is summed together
+            Ttl=totl/(num_of_players-1)  # Normalized across opponents by dividing by num_of_players-1
         grd_ttl += Ttl
-    return grd_ttl/num_of_players
+    return grd_ttl/num_of_players  # Averaged across all players
 
 
 class PdTournament:
@@ -35,17 +36,22 @@ class PdTournament:
     Tournament class that defines tournament players and tournament results ('data') and 
     methods to compute and save those results.
     """
-    def __init__(self, strategy_list, game=None, reps=1):
+    def __init__(self, strategy_list, game=None, reps=1, filename=None):
         self.player_list = strategy_list
         self.names = ','.join(sorted([n.name for n in strategy_list]))
         self.game = game
+        self.results = None
         # If reps=1, then data will be one row. If reps >1, then data will be multiple rows
-        self.data = self.run_tournament(reps)
+        if filename:
+            self.data, self.agg_data = self.run_tournament(reps, filename)  # df for tournament reps (individual player norm scores) and 
+        else:                                                      # df for aggregate data (player averages and tournament min, averages, and cc Dist)
+            self.data, self.agg_data = self.run_tournament(reps)
+         
 
     def __repr__(self):
         return self.names
 
-    def run_tournament(self, reps):
+    def run_tournament(self, reps, filename=None):
         """
         Method to execute a round-robin tournament with all listed players. Results are 
         computed and stored in data variable as a pandas dataframe.  
@@ -60,42 +66,43 @@ class PdTournament:
                                     repetitions=reps,
                                     seed=1)
 
-        results = tourn.play(processes=0)  
+        if filename:
+            results = tourn.play(processes=0, filename=filename)
+        else:
+            results = tourn.play(processes=0)
+        
+        self.results = results
         
         # Collect Group Outcome Metrics
         normal_scores = results.normalised_scores
-        avg_norm_score = np.average(normal_scores)
-        min_norm_score = np.amin(normal_scores)
-        avg_norm_cc_distribution = avg_normalised_state(results, (Action.C,Action.C))
-        data = [self.names, 
-                avg_norm_score,
-                min_norm_score,
-                avg_norm_cc_distribution]
-        
-        col = ['Tournament_Members', 
-                'Avg_Norm_Score',
-                'Min_Norm_Score',
-                'Avg_Norm_CC_Distribution']
+        pl_avg_norm_score = np.average(normal_scores, axis=1)
+        pl_min_norm_score = np.amin(normal_scores, axis=1)
+        tourn_avg_norm_cc_distribution = avg_normalised_state(results, (Action.C,Action.C))
         
         # List manipulation to identify individual players in separate columns
-        sorted_list = sorted([n.name for n in roster])
-        pl_list = list()
-        for num, p in enumerate(sorted_list,1):
-            pl_list.append(f'Player{num}')
-            pl_list.append(f'P{num}_Norm_Score')
+        pl_list =[]
+        pl_dict = {}
+        for num, scores in enumerate(normal_scores,1):
+            pl_dict[f'P{num}_Norm_Score'] = scores
+        
+        agg_data_dict = {}
+        for num, avg, minimum in zip(range(1,len(roster)+1), pl_avg_norm_score, pl_min_norm_score):
+            agg_data_dict[f'P{num}_Avg_Norm_Score'] = [avg]
+            agg_data_dict[f'P{num}_Min_Norm_Score'] = [minimum]
+            
+        agg_data_dict['Avg_of_PL_Scores'] = [np.average(normal_scores)]
+        agg_data_dict['Min_of_PL_Scores'] = [np.amin(normal_scores)]
+        agg_data_dict['Avg_CC_Distribution'] = [tourn_avg_norm_cc_distribution]
 
-        pl_data_list = list()
-        for name, score in zip(sorted_list, normal_scores):
-            pl_data_list.append(name)
-            pl_data_list.append(score[0])
-
-        data = [data[0]]+pl_data_list+data[1:]
-        col = [col[0]]+pl_list+col[1:]
+        idx = [i for i in range(1,reps+1)]
 
         # Store data in pandas dataframe
-        data_row = pd.DataFrame([data], columns=col)
+        dataf = pd.DataFrame(pl_dict, index=idx)
+        
+        # Store aggregate data in a separate dataframe
+        agg_data = pd.DataFrame(agg_data_dict, index=[reps])
         #self.data = data_row
-        return data_row
+        return dataf, agg_data
 
     def save_data(self, file_name):
         """ Method to save tournament data as a csv file """
