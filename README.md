@@ -1,3 +1,5 @@
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/Jessegoodspeed/PrisonersDilemma/HEAD?urlpath=lab)
+
 # Prisoners Dilemma
 Script and modules for experimentation with the indefinitely, iterated prisoner's dilemma game.
 
