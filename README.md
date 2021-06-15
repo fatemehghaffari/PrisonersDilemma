@@ -1,3 +1,5 @@
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/Jessegoodspeed/PrisonersDilemma/HEAD?urlpath=https%3A%2F%2Fgithub.com%2FJessegoodspeed%2FPrisonersDilemma%2Fblob%2Fmain%2FSensitivity_Analysis_PD_Model.ipynb)
+
 # Prisoners Dilemma
 Script and modules for experimentation with the indefinitely, iterated prisoner's dilemma game.
 
