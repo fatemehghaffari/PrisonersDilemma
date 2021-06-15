@@ -1,9 +1,9 @@
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/Jessegoodspeed/PrisonersDilemma/HEAD?urlpath=lab)
 
 # Prisoners Dilemma
-Script and modules for experimentation with the indefinitely, iterated prisoner's dilemma game.
+Script, modules, and Jupyter Notebook for experimentation with the indefinitely, iterated prisoner's dilemma game. Use the Binder badge above to interact with the repo files from the browser.
 
-### Requirements to run this script
+### Requirements to run main.py locally
 * Numpy
 * Pandas
 * Install modified Axelrod library from source
