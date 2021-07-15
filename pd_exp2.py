@@ -28,7 +28,6 @@ def avg_normalised_state(results_obj, state_tupl):
         grd_ttl += Ttl
     return grd_ttl/num_of_players  # Averaged across all players
 
-
 class PdTournament:
     """
     Tournament class that defines tournament players and tournament results ('data') and 
