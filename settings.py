@@ -11,6 +11,8 @@ filterset = {
 strategies = axl.filtered_strategies(filterset)
 
 # Reduce 30 strategies down to 12 - pre-selected 
+# If using original library - strategy_list will have to be adjusted to match original library (this code
+# is implemented for modified library).
 strategy_list = strategies[:3] + strategies[4:6] + strategies[10:12] + [strategies[14]] \
                 + [strategies[18],  strategies[23],  strategies[26], strategies[28]]
 

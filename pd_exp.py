@@ -1,3 +1,29 @@
+'''
+Pd_exp: Prisoner's Dilemma Experimentation
+==========================================
+
+Generate data for numerous Prisoner's Dilemma tournaments or systems of 
+tournaments.
+
+Classes:
+
+    PdTournament
+        Tournament class that defines tournament players and tournament results 
+        ('data') and methods to compute and save those results.
+    PdSystem 
+        Generate data for multiple tournaments and organize it into a dataframe
+    PdExp
+        Generate data for multiple systems
+        
+Functions:
+
+    grouper(iterable, n, fillvalue=None) -> iterable of n-sized-chunks
+        Collect data into fixed-length chunks or blocks
+    avg_normalised_state(object, tuple) -> float
+        Returns the tournament average for given state distribution (e.g.
+        (C,C), (D,D), (C,D), (D,C))
+
+'''
 from axelrod import Action, game, Tournament 
 import copy
 from itertools import zip_longest
@@ -9,12 +35,28 @@ import settings, subprocess
 
 # Helper Functions
 def grouper(iterable, n, fillvalue=None):
-    "Collect data into fixed-length chunks or blocks"
+    '''
+    Collect data into fixed-length chunks or blocks
+    
+        Parameters:
+            iterable (object): an iterable type
+            n (int): integer to indicate size of groupings
+            fillvalue (str): if no more elements are available to create a
+            grouping, fillvalue is used to finish group
+        
+        Returns:
+            new-iterable (object): new-iterable that is composed of n-length 
+            chunks of the original iterable.
+    '''
     # grouper('ABCDEFG', 3, 'x') --> ABC DEF Gxx"
     args = [iter(iterable)] * n
     return zip_longest(*args, fillvalue=fillvalue)
 
 def avg_normalised_state(results_obj, state_tupl):
+    '''
+    Returns the tournament average for given state distribution (e.g.
+    (C,C), (D,D), (C,D), (D,C))
+    '''
     norm_state_dist = results_obj.normalised_state_distribution
     num_of_players = len(norm_state_dist)
 
@@ -28,7 +70,6 @@ def avg_normalised_state(results_obj, state_tupl):
             Ttl=totl/(num_of_players-1)
         grd_ttl += Ttl
     return grd_ttl/num_of_players
-
 
 class PdTournament:
     """
@@ -45,7 +86,7 @@ class PdTournament:
     def __repr__(self):
         return self.names
 
-    def run_tournament(self, reps):
+    def run_tournament(self, reps=1):
         """
         Method to execute a round-robin tournament with all listed players. Results are 
         computed and stored in data variable as a pandas dataframe.  
@@ -117,7 +158,7 @@ class PdSystem:
         for num, team in enumerate(team_list,1):
             player_list = [settings.name_strategy_dict[i] for i in team]
             new_tour = PdTournament(player_list, game_type)
-            new_tour.run_tournament()
+#             new_tour.run_tournament()
             tournament_dict[f'Team{num}'] = new_tour
         
         self.team_dict = tournament_dict                             
@@ -126,7 +167,7 @@ class PdSystem:
 
     def compute_data(self):
         '''
-        Class method that concatenates each individual team dataframe,
+        Method that concatenates each individual team dataframe,
         computes the system metrics, and then assigns a single dataframe to
         self.data
         '''
@@ -180,6 +221,7 @@ class PdSystem:
         self.data = pd.concat([new_df,sys_df], axis=1)
 
     def save_data(self, path_to_file):
+        """ Method to save system data as a csv file """
         if self.game is None:
             R,P,S,T = game.Game().RPST()
         else:
@@ -192,17 +234,15 @@ class PdExp:
     Class object that holds list of partition sets (AKA systems of multiple teams) and runs
     experiments, collects data and saves them to csv.
     """
-    def __init__(self, list_of_lp, game_type=None):
-        self.lp_list = list_of_lp  # list of lists with partition sets
+    def __init__(self, list_of_systems, game_type=None):
+        self.sys_list = list_of_systems # list of lists with partition sets
         self.game = game_type
 
     def run_experiments(self):
         first = True
-        list_len = len(self.lp_list)
+        list_len = len(self.sys_list)
         #proc_list = []
-        for num, sys in enumerate(self.lp_list, 1):
-            #proc = subprocess.Popen(['./new_sys2csv.py', f'{num}', f'{sys}'])
-            #proc_list.append(proc)
+        for num, sys in enumerate(self.sys_list, 1):
             print('partition list: ', f'{sys!r}')
 
             sys_n = PdSystem(sys, self.game)
@@ -223,25 +263,9 @@ class PdExp:
             if (num % 1000 == 0):
                 print(f'***Reached system {num}. Progress: ', num/list_len, '%')
         self.data = exp_df
-        #for proc in proc_list:
-        #    try:
-        #        outs, errs = proc.communicate(timeout=120)
-        #        print("Errors: ", errs)
-        #        print("Outs: ", outs)
-        #    except subprocess.TimeoutExpired:
-        #        proc.kill()
-        #        print('Process killed')
-        #        outs, errs = proc.communicate()
-        #        print("Errors: ", errs)
-        #       print("Outs: ", outs)
-                
-    def compile_saved_data(self, path_to_directory):
-        """
-        Class method to retrieve saved system data frames and create one master data frame and output in csv file.  
-        """
-        pass
 
     def save_data(self, path_to_directory, descrip_name):
+        """ Method to save experiment data as a csv file """
         # Make directory if it does not exist
         Path(path_to_directory).mkdir(parents=True, exist_ok=True)
 

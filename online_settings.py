@@ -1,9 +1,6 @@
 # Online_settings.py
 # Revised configuration to be compatible with original Axelrod Library
 #
-#
-
-
 
 import axelrod as axl
 
@@ -20,8 +17,8 @@ strategies = axl.filtered_strategies(filterset)
 
 # Create a list of players that correspond to each of the strategies
 one_mem_players = [s() for s in strategies]  # list of strategy types - change out list for different 
-                                                    # experiments: strategies (full list), strategy_list (12 strats)
-                                                    # common_strategies (4 strategies)
+                                             # experiments: strategies (full list)
+    
 player_names = [n.name for n in one_mem_players]  # list of strings - names
 
 name_strategy_dict = dict()  # dictionary that maps string names to corresponding

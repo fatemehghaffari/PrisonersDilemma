@@ -1,3 +1,24 @@
+'''
+Pd_exp2: Prisoner's Dilemma Experimentation 2
+==========================================
+
+Generate data for numerously repeated Prisoner's Dilemma tournaments.
+
+Classes:
+
+    PdTournament
+        Tournament class that defines tournament players and tournament results 
+        ('data') and methods to compute and save those results.
+        
+Functions:
+
+    grouper(iterable, n, fillvalue=None) -> iterable of n-sized-chunks
+        Collect data into fixed-length chunks or blocks
+    avg_normalised_state(object, tuple) -> float
+        Returns the tournament average for given state distribution (e.g.
+        (C,C), (D,D), (C,D), (D,C))
+
+'''
 from axelrod import Action, game, Tournament 
 import copy
 from itertools import zip_longest
@@ -7,7 +28,19 @@ import pandas as pd
 
 # Helper Functions
 def grouper(iterable, n, fillvalue=None):
-    "Collect data into fixed-length chunks or blocks"
+    '''
+    Collect data into fixed-length chunks or blocks
+    
+        Parameters:
+            iterable (object): an iterable type
+            n (int): integer to indicate size of groupings
+            fillvalue (str): if no more elements are available to create a
+            grouping, fillvalue is used to finish group
+        
+        Returns:
+            new-iterable (object): new-iterable that is composed of n-length 
+            chunks of the original iterable.
+    '''
     # grouper('ABCDEFG', 3, 'x') --> ABC DEF Gxx"
     args = [iter(iterable)] * n
     return zip_longest(*args, fillvalue=fillvalue)
@@ -82,6 +115,7 @@ class PdTournament:
         for num, scores in enumerate(normal_scores,1):
             pl_dict[f'P{num}_Norm_Score'] = scores
         
+        ##### Included a 2nd dataframe object to track aggregate data for repeated tournaments
         agg_data_dict = {}
         for num, avg, minimum in zip(range(1,len(roster)+1), pl_avg_norm_score, pl_min_norm_score):
             agg_data_dict[f'P{num}_Avg_Norm_Score'] = [avg]
