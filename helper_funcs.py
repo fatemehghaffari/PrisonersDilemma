@@ -3,8 +3,14 @@ from itertools import combinations
 
 def partitions(set_array, subset_size):
     """
-    Generator function that takes an array and integer as input and outputs an iterator
-    object that yields a list of partition sets of the elements in the given list of the given size.
+    Generates partition sets of the input list with the given subset_size.
+    
+        Parameters:
+            set_array (list): list of elements, or set, to be partitioned
+            subset_size (int): size (k) of uniform partitions
+        
+        Returns:
+            (iterator) : yields a partition set of k-sized subsets
     """
     if len(set_array) == 0:
         yield []
