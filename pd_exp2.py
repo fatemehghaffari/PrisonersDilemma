@@ -26,52 +26,6 @@ import numpy as np
 import pandas as pd
 from pd_exp import grouper, avg_normalised_state
 
-
-# # Helper Functions
-# def grouper(iterable, n, fillvalue=None):
-#     '''
-#     Collect data into fixed-length chunks or blocks
-    
-#         Parameters:
-#             iterable (object): an iterable type
-#             n (int): integer to indicate size of blocks to group iterable units
-#             fillvalue (str): if no more elements are available to create a
-#             block, fillvalue is used to finish final block
-        
-#         Returns:
-#             new-iterable (object): new-iterable that is composed of n-length 
-#             blocks of the original iterable.
-            
-#            ex: grouper('ABCDEFG', 3, 'x') --> ABC DEF Gxx"
-#     '''
-#     args = [iter(iterable)] * n
-#     return zip_longest(*args, fillvalue=fillvalue)
-
-# def avg_normalised_state(results_obj, state_tupl):
-#     '''
-#     Returns the tournament average for given state distribution (e.g.
-#         (C,C), (D,D), (C,D), (D,C))
-    
-#         Parameters:
-#             results_obj (object):
-#             state_tupl (tuple): player-opponent action pair that is the game 
-#                 state of interest
-#     '''
-#     norm_state_dist = results_obj.normalised_state_distribution
-#     num_of_players = len(norm_state_dist)
-
-#     grd_ttl = 0
-#     for x in norm_state_dist:
-#         #  For-loop iterates through each player's stats
-#         for bunch in grouper(x,num_of_players):
-#             totl = 0
-#             for pl in range(num_of_players):
-#                 i = bunch[pl]
-#                 totl += i[state_tupl]  # Each player's CC distribution (one for each opponent) is summed together
-#             Ttl=totl/(num_of_players-1)  # Normalized across opponents by dividing by num_of_players-1
-#         grd_ttl += Ttl
-#     return grd_ttl/num_of_players  # Averaged across all players
-
 class PdTournament:
     """
     A class to represent a tournament. 
