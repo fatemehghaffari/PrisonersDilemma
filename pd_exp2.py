@@ -73,7 +73,7 @@ from pd_exp import grouper, avg_normalised_state
 #     return grd_ttl/num_of_players  # Averaged across all players
 
 class PdTournament:
-     """
+    """
     A class to represent a tournament. 
     
     ...
