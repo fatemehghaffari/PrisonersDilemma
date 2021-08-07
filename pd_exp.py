@@ -8,8 +8,7 @@ tournaments.
 Classes:
 
     PdTournament
-        Tournament class that defines tournament players and tournament results 
-        ('data') and methods to compute and save those results.
+        A class to represent a tournament.
     PdSystem 
         Generate data for multiple tournaments and organize it into a dataframe
     PdExp
@@ -40,23 +39,37 @@ def grouper(iterable, n, fillvalue=None):
     
         Parameters:
             iterable (object): an iterable type
-            n (int): integer to indicate size of groupings
+            n (int): integer to indicate size of blocks to group iterable units
             fillvalue (str): if no more elements are available to create a
-            grouping, fillvalue is used to finish group
+            block, fillvalue is used to finish final block
         
         Returns:
             new-iterable (object): new-iterable that is composed of n-length 
-            chunks of the original iterable.
+            blocks of the original iterable.
+            
+           ex: grouper('ABCDEFG', 3, 'x') --> ABC DEF Gxx"
     '''
-    # grouper('ABCDEFG', 3, 'x') --> ABC DEF Gxx"
+    
     args = [iter(iterable)] * n
     return zip_longest(*args, fillvalue=fillvalue)
 
 def avg_normalised_state(results_obj, state_tupl):
     '''
     Returns the tournament average for given state distribution (e.g.
-    (C,C), (D,D), (C,D), (D,C))
+        (C,C), (D,D), (C,D), (D,C))
+    
+        Parameters:
+            results_obj (object): output generated from Axelrod 
+                tournament.play()
+            state_tupl (tuple): player-opponent action pair that is the game 
+                state of interest (e.g. (Action.C, Action.C) for mutual 
+                cooperation)
+                
+        Returns:
+            (float): average distribution of state_tupl for the tournament 
+                that results_obj describes.
     '''
+    
     norm_state_dist = results_obj.normalised_state_distribution
     num_of_players = len(norm_state_dist)
 
@@ -66,31 +79,85 @@ def avg_normalised_state(results_obj, state_tupl):
             totl = 0
             for pl in range(num_of_players):
                 i = bunch[pl]
-                totl += i[state_tupl]
-            Ttl=totl/(num_of_players-1)
+                totl += i[state_tupl]  # Each player's CC distribution (one for
+                                       # each opponent) is summed together
+            
+            Ttl=totl/(num_of_players-1)  # Normalized across opponents by 
+                                         # dividing by num_of_players-1
         grd_ttl += Ttl
-    return grd_ttl/num_of_players
+    return grd_ttl/num_of_players  # Averaged across all players
 
 class PdTournament:
     """
-    Tournament class that defines tournament players and tournament results ('data') and 
-    methods to compute and save those results.
+    A class to represent a tournament. 
+    
+    ...
+    
+    Attributes
+    ----------
+    player_list : list
+        list of strategy names that also describe the tournament players
+    names : str
+        single string that includes the names of all strategies/players 
+        separated by comma
+    game : axelrod.game (object)
+        container for game matrix and scoring logic
+    data : pandas.dataframe (object)
+        placeholder for the tournament results
+        
+    Methods
+    -------
+    run_tournament(reps=1):
+        Executes a round-robin tournament with all listed players. Results are 
+        computed and stored in data variable as a pandas dataframe.
+    save_data(file_name):
+        Saves tournament data as a csv file
     """
+    
     def __init__(self, strategy_list, game=None, reps=1):
+        """
+        Constructs all the necessary attributes for tournament object
+        
+        Parameters
+        ----------
+        player_list : list
+            list of strategy names that also describe the tournament players
+        game : axelrod.game (object)
+            container for game matrix and scoring logic (default is None, which
+            will prompt the classic PD setting)
+        reps : int
+            number of times to repeat tournament (default is 1)
+        """
+        
         self.player_list = strategy_list
         self.names = ','.join(sorted([n.name for n in strategy_list]))
         self.game = game
-        # If reps=1, then data will be one row. If reps >1, then data will be multiple rows
-        self.data = self.run_tournament(reps)
+        self.data = self.run_tournament(reps)  # If reps=1, then data will be 
+                                               # one row. If reps >1, then data
+                                               # will be multiple rows
 
     def __repr__(self):
         return self.names
 
     def run_tournament(self, reps=1):
         """
-        Method to execute a round-robin tournament with all listed players. Results are 
-        computed and stored in data variable as a pandas dataframe.  
+        Executes a round-robin tournament with all listed players. 
+        
+        Results are computed and stored in data attribute as a pandas dataframe.
+        
+        Parameters
+        ----------
+        reps : int
+            number of times to repeat tournament (default is 1)
+         
+        Returns
+        -------
+        data_row : pandas.dataframe (object)
+            row representation of individual tournament results, which consists of
+            tournament players, player statistics and tournament metrics
+        
         """
+        
         # Instantiate tournament object
         roster = self.player_list
         print('Instantiating tournament object with these players: ', self.names)
@@ -139,17 +206,58 @@ class PdTournament:
         return data_row
 
     def save_data(self, file_name):
-        """ Method to save tournament data as a csv file """
+        """ Saves tournament data as a csv file """
         
         if self.game is None:
             R,P,S,T = game.Game().RPST()
         else:
             R,P,S,T = self.game.RPST()
         
-        self.data.to_csv(file_name+f'_gameRPST_{R!r}_{P!r}_{S!r}_{T!r}.csv', index=False)
+        self.data.to_csv(file_name+f'_gameRPST_{R!r}_{P!r}_{S!r}_{T!r}.csv', 
+                  index=False)
 
 class PdSystem:
+    """
+    A class to represent a system of tournaments. 
+    
+    ...
+    
+    Attributes
+    ----------
+    game : axelrod.game (object)
+        container for game matrix and scoring logic
+    data : pandas.dataframe (object)
+        placeholder for system data
+    id : 
+    team_dict : dictionary
+        container to hold team-tournament object pairs
+        
+    Methods
+    -------
+    compute_data:
+        Concatenates each individual team dataframe, computes the system 
+        metrics, and then assigns a single dataframe to data attribute
+    save_data(file_name):
+        Saves system data as a csv file
+    """
+    
     def __init__(self, team_list, game_type=None):
+        """
+        Constructs all the necessary attributes for system object
+        
+        Parameters
+        ----------
+        team_list : list
+            a two-dimensional list where each item of the first-dimension is a
+            player_list for a single tournament
+        game_type : axelrod.game (object)
+            container for game matrix and scoring logic (default is None, which
+            will prompt the classic PD setting)
+        
+        """
+        
+        self.data = None
+        self.id = None
         self.game = game_type
         tournament_dict = dict()
         
@@ -158,19 +266,17 @@ class PdSystem:
         for num, team in enumerate(team_list,1):
             player_list = [settings.name_strategy_dict[i] for i in team]
             new_tour = PdTournament(player_list, game_type)
-#             new_tour.run_tournament()
             tournament_dict[f'Team{num}'] = new_tour
         
         self.team_dict = tournament_dict                             
-        self.data = None
-        self.id = None
+        
 
     def compute_data(self):
         '''
-        Method that concatenates each individual team dataframe,
-        computes the system metrics, and then assigns a single dataframe to
-        self.data
+        Concatenates each individual team dataframe, computes the system 
+        metrics, and then assigns a single dataframe to data attribute
         '''
+        
         first = True
         for key, value in self.team_dict.items():
 
@@ -221,7 +327,8 @@ class PdSystem:
         self.data = pd.concat([new_df,sys_df], axis=1)
 
     def save_data(self, path_to_file):
-        """ Method to save system data as a csv file """
+        """ Saves system data as a csv file """
+        
         if self.game is None:
             R,P,S,T = game.Game().RPST()
         else:
@@ -231,14 +338,38 @@ class PdSystem:
 
 class PdExp:
     """
-    Class object that holds list of partition sets (AKA systems of multiple teams) and runs
-    experiments, collects data and saves them to csv.
+    A class to represent a series of systems. 
+    
+    ...
+    
+    Attributes
+    ----------
+    game : axelrod.game (object)
+        container for game matrix and scoring logic
+    sys_list : tuple
+        three-dimensional ordered list, or tuple, where the first-dimension is
+        a list of systems, the 2nd-dimension is the team list, and the 
+        3rd-dimension is the individual players. 
+ 
+    Methods
+    -------
+    run_experiments:
+        Iterates through each system, runs the different tournaments and 
+        then saves the data to the data attribute.
+    save_data(path_to_directory, descrip_name):
+        Saves experiment data as a csv file
     """
+   
     def __init__(self, list_of_systems, game_type=None):
         self.sys_list = list_of_systems # list of lists with partition sets
         self.game = game_type
 
     def run_experiments(self):
+        """
+        Iterates through each system, runs the different tournaments and 
+        then saves the data to the data attribute.
+        """
+        
         first = True
         list_len = len(self.sys_list)
         #proc_list = []
@@ -256,8 +387,9 @@ class PdExp:
             print('***Processing number ', num)
             if (num % 100 == 0):
                 self.data = exp_df
-                ###### Change file_name string below when changing num of strategies (n) used or
-                ###### the number of players in a team (k)
+                ###### Change file_name string below when changing num of 
+                ###### strategies (n) used or the number of players in a team 
+                ###### (k)
                 self.save_data('Data/Desk/',f'Comb_Sys1to{num}_12strat_4plx3partitions')
                 print(f'System {num} completed and batch saved!')
             if (num % 1000 == 0):
@@ -265,7 +397,18 @@ class PdExp:
         self.data = exp_df
 
     def save_data(self, path_to_directory, descrip_name):
-        """ Method to save experiment data as a csv file """
+        """ 
+        Saves experiment data as a csv file 
+        
+        Parameters
+        ----------
+        path_to_directory (str) :  relative path to folder where data is to be stored
+        descrip_name (str) : file name prefix for the output data to be saved
+        
+        Post-condition
+        --------------
+        csv file is saved in the given directory with the given prefix-name
+        """
         # Make directory if it does not exist
         Path(path_to_directory).mkdir(parents=True, exist_ok=True)
 

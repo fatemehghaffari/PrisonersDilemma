@@ -24,47 +24,83 @@ import copy
 from itertools import zip_longest
 import numpy as np
 import pandas as pd
+from pd_exp import grouper, avg_normalised_state
 
 
-# Helper Functions
-def grouper(iterable, n, fillvalue=None):
-    '''
-    Collect data into fixed-length chunks or blocks
+# # Helper Functions
+# def grouper(iterable, n, fillvalue=None):
+#     '''
+#     Collect data into fixed-length chunks or blocks
     
-        Parameters:
-            iterable (object): an iterable type
-            n (int): integer to indicate size of groupings
-            fillvalue (str): if no more elements are available to create a
-            grouping, fillvalue is used to finish group
+#         Parameters:
+#             iterable (object): an iterable type
+#             n (int): integer to indicate size of blocks to group iterable units
+#             fillvalue (str): if no more elements are available to create a
+#             block, fillvalue is used to finish final block
         
-        Returns:
-            new-iterable (object): new-iterable that is composed of n-length 
-            chunks of the original iterable.
-    '''
-    # grouper('ABCDEFG', 3, 'x') --> ABC DEF Gxx"
-    args = [iter(iterable)] * n
-    return zip_longest(*args, fillvalue=fillvalue)
+#         Returns:
+#             new-iterable (object): new-iterable that is composed of n-length 
+#             blocks of the original iterable.
+            
+#            ex: grouper('ABCDEFG', 3, 'x') --> ABC DEF Gxx"
+#     '''
+#     args = [iter(iterable)] * n
+#     return zip_longest(*args, fillvalue=fillvalue)
 
-def avg_normalised_state(results_obj, state_tupl):
-    norm_state_dist = results_obj.normalised_state_distribution
-    num_of_players = len(norm_state_dist)
+# def avg_normalised_state(results_obj, state_tupl):
+#     '''
+#     Returns the tournament average for given state distribution (e.g.
+#         (C,C), (D,D), (C,D), (D,C))
+    
+#         Parameters:
+#             results_obj (object):
+#             state_tupl (tuple): player-opponent action pair that is the game 
+#                 state of interest
+#     '''
+#     norm_state_dist = results_obj.normalised_state_distribution
+#     num_of_players = len(norm_state_dist)
 
-    grd_ttl = 0
-    for x in norm_state_dist:
-        #  For-loop iterates through each player's stats
-        for bunch in grouper(x,num_of_players):
-            totl = 0
-            for pl in range(num_of_players):
-                i = bunch[pl]
-                totl += i[state_tupl]  # Each player's CC distribution (one for each opponent) is summed together
-            Ttl=totl/(num_of_players-1)  # Normalized across opponents by dividing by num_of_players-1
-        grd_ttl += Ttl
-    return grd_ttl/num_of_players  # Averaged across all players
+#     grd_ttl = 0
+#     for x in norm_state_dist:
+#         #  For-loop iterates through each player's stats
+#         for bunch in grouper(x,num_of_players):
+#             totl = 0
+#             for pl in range(num_of_players):
+#                 i = bunch[pl]
+#                 totl += i[state_tupl]  # Each player's CC distribution (one for each opponent) is summed together
+#             Ttl=totl/(num_of_players-1)  # Normalized across opponents by dividing by num_of_players-1
+#         grd_ttl += Ttl
+#     return grd_ttl/num_of_players  # Averaged across all players
 
 class PdTournament:
-    """
-    Tournament class that defines tournament players and tournament results ('data') and 
-    methods to compute and save those results.
+     """
+    A class to represent a tournament. 
+    
+    ...
+    
+    Attributes
+    ----------
+    agg_data : pandas.dataframe (object)
+        placeholder for aggregate tournament results
+    player_list : list
+        list of strategy names that also describe the tournament players
+    names : str
+        single string that includes the names of all strategies/players 
+        separated by comma
+    game : axelrod.game (object)
+        container for game matrix and scoring logic
+    data : pandas.dataframe (object)
+        placeholder for individual player results
+    results : (object)
+        output of tournament.play()
+        
+    Methods
+    -------
+    run_tournament(reps, filename=None):
+        Executes a round-robin tournament with all listed players. Results are 
+        computed and stored in data variable as a pandas dataframe.
+    save_data(file_name):
+        Saves tournament data as a csv file
     """
     def __init__(self, strategy_list, game=None, reps=1, filename=None):
         self.player_list = strategy_list
@@ -83,8 +119,23 @@ class PdTournament:
 
     def run_tournament(self, reps, filename=None):
         """
-        Method to execute a round-robin tournament with all listed players. Results are 
-        computed and stored in data variable as a pandas dataframe.  
+        Executes a round-robin tournament with all listed players. 
+        
+        Results are computed and stored in data variable as a pandas dataframe.
+        
+        Parameters
+        ----------
+        reps : int
+            number of times to run the same tournament
+        filename : str
+            filename to use to save raw tournament data (default is None)
+            
+        Returns
+        -------
+        dataf : pandas.dataframe (object)
+            dataframe that depicts individual player data and metrics
+        agg_data : pandas.dataframe (object)
+            dataframe that depicts aggregate tournament data and metrics
         """
         # Instantiate tournament object
         roster = self.player_list
