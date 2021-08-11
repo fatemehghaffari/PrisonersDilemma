@@ -344,12 +344,12 @@ class PdExp:
     
     Attributes
     ----------
-    game : axelrod.game (object)
-        container for game matrix and scoring logic
     sys_list : tuple
         three-dimensional ordered list, or tuple, where the first-dimension is
         a list of systems, the 2nd-dimension is the team list, and the 
-        3rd-dimension is the individual players. 
+        3rd-dimension is the individual players.
+    game : axelrod.game (object)
+        container for game matrix and scoring logic 
  
     Methods
     -------
