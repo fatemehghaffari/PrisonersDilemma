@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-import pd_exp
-from helper_funcs import partitions
+import code.pd_exp
+from code.helper_funcs import partitions
 from pathlib import Path
-from settings import player_names, stag, high_t
+from code.settings import player_names, stag, high_t
 import time, json
 
 ### For experiment 1

@@ -29,7 +29,8 @@ from itertools import zip_longest
 import numpy as np
 import pandas as pd
 from pathlib import Path
-import settings, subprocess
+import code.settings
+import subprocess
 
 
 # Helper Functions
