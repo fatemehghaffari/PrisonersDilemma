@@ -24,7 +24,7 @@ import copy
 from itertools import zip_longest
 import numpy as np
 import pandas as pd
-from pd_exp import grouper, avg_normalised_state
+from code.pd_exp import grouper, avg_normalised_state
 
 class PdTournament:
     """

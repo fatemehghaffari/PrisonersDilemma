@@ -265,7 +265,7 @@ class PdSystem:
         # Loop through team list and construct tournament instances
         # for each team. Save each team to the tournament dictionary
         for num, team in enumerate(team_list,1):
-            player_list = [settings.name_strategy_dict[i] for i in team]
+            player_list = [code.settings.name_strategy_dict[i] for i in team]
             new_tour = PdTournament(player_list, game_type)
             tournament_dict[f'Team{num}'] = new_tour
         
@@ -318,7 +318,7 @@ class PdSystem:
             str_list[num] = tm.split(',')
         str_list2 = copy.deepcopy(str_list)
         for num, lst in enumerate(str_list):
-            dec_list=[settings.name_dec_dict[n] for n in lst]
+            dec_list=[code.settings.name_dec_dict[n] for n in lst]
             dec_list = ','.join(dec_list)
             str_list[num] = dec_list
         new_str='_'.join(str_list)
