@@ -345,7 +345,7 @@ class PdExp:
     
     Attributes
     ----------
-    sys_list : tuple
+    sys_tuple : tuple
         three-dimensional ordered list, or tuple, where the first-dimension is
         a list of systems, the 2nd-dimension is the team list, and the 
         3rd-dimension is the individual players.
@@ -361,8 +361,23 @@ class PdExp:
         Saves experiment data as a csv file
     """
    
-    def __init__(self, list_of_systems, game_type=None):
-        self.sys_list = list_of_systems # list of lists with partition sets
+    def __init__(self, tuple_of_systems, game_type=None):
+        """
+        Constructs all the necessary attributes for pd experiment object
+        
+        Parameters
+        ----------
+        tuple_of_systems : tuple
+            a multi-dimensional matrix where each item of the first-dimension is an
+            ordered list of systems, and the second dimension is an ordered-list of 
+            teams
+        game_type : axelrod.game (object)
+            container for game matrix and scoring logic (default is None, which
+            will prompt the classic PD setting)
+        
+        """
+        
+        self.sys_tuple = tuple_of_systems # list of lists with partition sets
         self.game = game_type
 
     def run_experiments(self):
@@ -372,9 +387,9 @@ class PdExp:
         """
         
         first = True
-        list_len = len(self.sys_list)
+        list_len = len(self.sys_tuple)
         #proc_list = []
-        for num, sys in enumerate(self.sys_list, 1):
+        for num, sys in enumerate(self.sys_tuple, 1):
             print('partition list: ', f'{sys!r}')
 
             sys_n = PdSystem(sys, self.game)
