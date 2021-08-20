@@ -23,7 +23,8 @@ part_list = tuple([tuple([player_names])])
 #        json.dump(part_list, f)
 
 
-print('Total count of systems: ',len(part_list))  #Should be 5775 for n=12 and k=4
+print('Total count of systems: ',len(part_list))  # Should be 5775 for n=12 and k=4
+                                                  # The math is explained here: https://math.stackexchange.com/questions/1471101/number-of-partitions-of-a-set-into-subsets-of-cardinality-k?rq=1
 start_time = time.time()
 
 print('running PD Exp')
