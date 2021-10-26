@@ -88,6 +88,34 @@ def avg_normalised_state(results_obj, state_tupl):
         grd_ttl += Ttl
     return grd_ttl/num_of_players  # Averaged across all players
 
+def new_avg_normalised_state(results_obj, state_tupl):
+    '''
+    Returns the tournament average for given state distribution (e.g.
+        (C,C), (D,D), (C,D), (D,C))
+    
+        Parameters:
+            results_obj (object): output generated from Axelrod 
+                tournament.play()
+            state_tupl (tuple): player-opponent action pair that is the game 
+                state of interest (e.g. (Action.C, Action.C) for mutual 
+                cooperation)
+                
+        Returns:
+            (float): average distribution of state_tupl for the tournament 
+                that results_obj describes.
+    '''
+    
+    norm_state_dist = results_obj.normalised_state_distribution
+    num_of_players = len(norm_state_dist)
+    totl = 0
+    for x in norm_state_dist:
+        for bunch in grouper(x,num_of_players):
+            for pl in range(num_of_players):
+                i = bunch[pl]
+                totl += i[state_tupl]  # Each player's CC distribution (one for
+                                       # each opponent) is summed together
+    return totl/num_of_players  # Averaged across all players
+
 class PdTournament:
     """
     A class to represent a tournament. 
@@ -173,18 +201,25 @@ class PdTournament:
         
         # Collect Group Outcome Metrics
         normal_scores = results.normalised_scores
+        scores = results.scores
         avg_norm_score = np.average(normal_scores)
+        new_avg_norm_score = np.average(scores)
         min_norm_score = np.amin(normal_scores)
         avg_norm_cc_distribution = avg_normalised_state(results, (Action.C,Action.C))
+        new_avg_norm_cc_distribution = new_avg_normalised_state(results, (Action.C,Action.C))
         data = [self.names, 
                 avg_norm_score,
+                new_avg_norm_score,
                 min_norm_score,
-                avg_norm_cc_distribution]
+                avg_norm_cc_distribution,
+                new_avg_norm_cc_distribution]
         
         col = ['Tournament_Members', 
                 'Avg_Norm_Score',
+                'New_Avg_Norm_Score',
                 'Min_Norm_Score',
-                'Avg_Norm_CC_Distribution']
+                'Avg_Norm_CC_Distribution',
+                'New_Avg_Norm_CC_Distribution']
         
         # List manipulation to identify individual players in separate columns
         sorted_list = sorted([n.name for n in roster])
@@ -284,8 +319,10 @@ class PdSystem:
             # renaming columns to tournament data frame
             df = value.data.rename(columns={'Tournament_Members': key,
                                         'Avg_Norm_Score': f'{key} Avg Score',
+                                        'New_Avg_Norm_Score': f'{key} New Avg Score',
                                         'Min_Norm_Score': f'{key} Min Score',
-                                        'Avg_Norm_CC_Distribution': f'{key} Avg CC Dist'})
+                                        'Avg_Norm_CC_Distribution': f'{key} Avg CC Dist',
+                                        'New_Avg_Norm_CC_Distribution': f'{key} New Avg CC Dist'})
             if first:
                 df1 = df
                 first = False
@@ -298,6 +335,8 @@ class PdSystem:
         min_scores = [df1[f'{i} Min Score'].values for i in list(self.team_dict)]
         avg_scores = [df1[f'{i} Avg Score'].values for i in list(self.team_dict)]
         cc_dists = [df1[f'{i} Avg CC Dist'].values for i in list(self.team_dict)]
+        new_avg_scores = [df1[f'{i} New Avg Score'].values for i in list(self.team_dict)]
+        new_cc_dists = [df1[f'{i} New Avg CC Dist'].values for i in list(self.team_dict)]
         
         # Compute system metrics and create new data frame
         sys_df = pd.DataFrame({'SYS MIN Score' : [np.amin(min_scores)],
@@ -305,7 +344,11 @@ class PdSystem:
                                'MIN of Team Avgs' : [np.amin(avg_scores)],
                                'AVG of Team Mins' : [np.average(min_scores)],
                                'SYS CC Dist AVG' : [np.average(cc_dists)],
-                               'SYS CC Dist MIN' : [np.amin(cc_dists)]},
+                               'SYS CC Dist MIN' : [np.amin(cc_dists)],
+                               'SYS New AVG Score' : [np.average(new_avg_scores)],
+                               'MIN of Team New Avgs' : [np.amin(new_avg_scores)],
+                               'SYS New CC Dist AVG' : [np.average(new_cc_dists)],
+                               'SYS New CC Dist MIN' : [np.amin(new_cc_dists)]},
                             index=[1])
 
         # Concatenate two data frames
