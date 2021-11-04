@@ -23,13 +23,13 @@ Functions:
         (C,C), (D,D), (C,D), (D,C))
 
 '''
-from axelrod import Action, game, Tournament 
+from axelrod import Action, game, Tournament, plot
 import copy
 from itertools import zip_longest
 import numpy as np
 import pandas as pd
 from pathlib import Path
-import code.settings
+import settings
 import subprocess
 
 
@@ -108,13 +108,32 @@ def new_avg_normalised_state(results_obj, state_tupl):
     norm_state_dist = results_obj.normalised_state_distribution
     num_of_players = len(norm_state_dist)
     totl = 0
+    grd_ttl = 0
     for x in norm_state_dist:
         for bunch in grouper(x,num_of_players):
             for pl in range(num_of_players):
                 i = bunch[pl]
                 totl += i[state_tupl]  # Each player's CC distribution (one for
                                        # each opponent) is summed together
-    return totl/num_of_players  # Averaged across all players
+            
+            # Ttl=totl/(num_of_players-1)  # Normalized across opponents by 
+                                         # dividing by num_of_players-1
+        grd_ttl += totl
+    return grd_ttl/num_of_players  # Averaged across all players
+
+def sum_state(results_obj, state_tupl):
+    state_dist = results_obj.state_distribution
+    state_sum = 0
+    for player in state_dist:
+        for state_counter in player:
+            states = dict(state_counter)
+            print(states)
+            try:
+                state_sum += states[state_tupl]
+                print(state_sum)
+            except Exception as e:
+                print(e)
+    return state_sum
 
 class PdTournament:
     """
@@ -198,28 +217,35 @@ class PdTournament:
                                     seed=1)
 
         results = tourn.play(processes=0)  
-        
+        print("match length for each user: ", results.match_lengths)
+        sum_T = 0
+        for rp in results.match_lengths:
+            srp = [sum(x) for x in rp]
+            sum_T = sum(srp)
         # Collect Group Outcome Metrics
         normal_scores = results.normalised_scores
-        scores = results.scores
+        sscores = results.scores
         avg_norm_score = np.average(normal_scores)
-        new_avg_norm_score = np.average(scores)
+        new_avg_norm_score = np.average(sscores)
+        avg_norm_score_2 = (new_avg_norm_score * len(results.scores)) / (sum_T / 2)
+
         min_norm_score = np.amin(normal_scores)
         avg_norm_cc_distribution = avg_normalised_state(results, (Action.C,Action.C))
         new_avg_norm_cc_distribution = new_avg_normalised_state(results, (Action.C,Action.C))
+        avg_norm_cc_distribution_2 = sum_state(results, (Action.C,Action.C)) / sum_T
         data = [self.names, 
                 avg_norm_score,
-                new_avg_norm_score,
+                avg_norm_score_2,
                 min_norm_score,
                 avg_norm_cc_distribution,
-                new_avg_norm_cc_distribution]
+                avg_norm_cc_distribution_2]
         
         col = ['Tournament_Members', 
                 'Avg_Norm_Score',
-                'New_Avg_Norm_Score',
+                'Avg_Norm_Score_2',
                 'Min_Norm_Score',
                 'Avg_Norm_CC_Distribution',
-                'New_Avg_Norm_CC_Distribution']
+                'Avg_Norm_CC_Distribution_2']
         
         # List manipulation to identify individual players in separate columns
         sorted_list = sorted([n.name for n in roster])
@@ -248,7 +274,6 @@ class PdTournament:
             R,P,S,T = game.Game().RPST()
         else:
             R,P,S,T = self.game.RPST()
-        
         self.data.to_csv(file_name+f'_gameRPST_{R!r}_{P!r}_{S!r}_{T!r}.csv', 
                   index=False)
 
@@ -300,7 +325,7 @@ class PdSystem:
         # Loop through team list and construct tournament instances
         # for each team. Save each team to the tournament dictionary
         for num, team in enumerate(team_list,1):
-            player_list = [code.settings.name_strategy_dict[i] for i in team]
+            player_list = [settings.name_strategy_dict[i] for i in team]
             new_tour = PdTournament(player_list, game_type)
             tournament_dict[f'Team{num}'] = new_tour
         
@@ -319,10 +344,10 @@ class PdSystem:
             # renaming columns to tournament data frame
             df = value.data.rename(columns={'Tournament_Members': key,
                                         'Avg_Norm_Score': f'{key} Avg Score',
-                                        'New_Avg_Norm_Score': f'{key} New Avg Score',
+                                        'Avg_Norm_Score_2': f'{key} New Avg Score',
                                         'Min_Norm_Score': f'{key} Min Score',
                                         'Avg_Norm_CC_Distribution': f'{key} Avg CC Dist',
-                                        'New_Avg_Norm_CC_Distribution': f'{key} New Avg CC Dist'})
+                                        'Avg_Norm_CC_Distribution_2': f'{key} New Avg CC Dist'})
             if first:
                 df1 = df
                 first = False
@@ -330,14 +355,16 @@ class PdSystem:
                 df1 = pd.concat([df1,df], axis=1)
         
         df1.index += 1  # Initialize index from 1 instead of 0
-        
+        # print("This is df: ")
+        # print(df)
+        # print("This is df1: ")
+        # print(df1)
         # Collect team data
         min_scores = [df1[f'{i} Min Score'].values for i in list(self.team_dict)]
         avg_scores = [df1[f'{i} Avg Score'].values for i in list(self.team_dict)]
-        cc_dists = [df1[f'{i} Avg CC Dist'].values for i in list(self.team_dict)]
         new_avg_scores = [df1[f'{i} New Avg Score'].values for i in list(self.team_dict)]
+        cc_dists = [df1[f'{i} Avg CC Dist'].values for i in list(self.team_dict)]
         new_cc_dists = [df1[f'{i} New Avg CC Dist'].values for i in list(self.team_dict)]
-        
         # Compute system metrics and create new data frame
         sys_df = pd.DataFrame({'SYS MIN Score' : [np.amin(min_scores)],
                                'SYS AVG Score' : [np.average(avg_scores)],
@@ -345,11 +372,8 @@ class PdSystem:
                                'AVG of Team Mins' : [np.average(min_scores)],
                                'SYS CC Dist AVG' : [np.average(cc_dists)],
                                'SYS CC Dist MIN' : [np.amin(cc_dists)],
-                               'SYS New AVG Score' : [np.average(new_avg_scores)],
-                               'MIN of Team New Avgs' : [np.amin(new_avg_scores)],
                                'SYS New CC Dist AVG' : [np.average(new_cc_dists)],
-                               'SYS New CC Dist MIN' : [np.amin(new_cc_dists)]},
-                            index=[1])
+                               'SYS New CC Dist MIN' : [np.amin(new_cc_dists)]}, index=[1])
 
         # Concatenate two data frames
         sys_df = pd.concat([sys_df,df1], axis=1)
@@ -361,7 +385,7 @@ class PdSystem:
             str_list[num] = tm.split(',')
         str_list2 = copy.deepcopy(str_list)
         for num, lst in enumerate(str_list):
-            dec_list=[code.settings.name_dec_dict[n] for n in lst]
+            dec_list=[settings.name_dec_dict[n] for n in lst]
             dec_list = ','.join(dec_list)
             str_list[num] = dec_list
         new_str='_'.join(str_list)
@@ -470,10 +494,10 @@ class PdExp:
         """
         # Make directory if it does not exist
         Path(path_to_directory).mkdir(parents=True, exist_ok=True)
-
+        print("I am saving the data")
         if self.game is None:
             R,P,S,T = game.Game().RPST()
         else:
             R,P,S,T = self.game.RPST()
-        
+        print("The file name is: ", path_to_directory+f'{descrip_name}_RPST_{R!r}_{P!r}_{S!r}_{T!r}.csv')
         self.data.to_csv(path_to_directory+f'{descrip_name}_RPST_{R!r}_{P!r}_{S!r}_{T!r}.csv')
