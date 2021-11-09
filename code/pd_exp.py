@@ -135,6 +135,10 @@ def sum_state(results_obj, state_tupl):
                 print(e)
     return state_sum
 
+class Agent:
+    def __init__(self, strategy):
+        self.strategy = strategy
+
 class PdTournament:
     """
     A class to represent a tournament. 
@@ -446,6 +450,17 @@ class PdExp:
         
         self.sys_tuple = tuple_of_systems # list of lists with partition sets
         self.game = game_type
+        for system in tuple_of_systems:
+            systems = []
+            for team in system:
+                teams = []
+                for player in team:
+                    l = []
+                    l.append(Agent(player))
+                    tpl = tuple(l)
+                teams.append(tpl)
+            systems.append(teams)
+        self.systems = systems
 
     def run_experiments(self):
         """
