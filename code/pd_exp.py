@@ -117,22 +117,25 @@ def new_avg_normalised_state(results_obj, state_tupl):
                                        # each opponent) is summed together
             
             # Ttl=totl/(num_of_players-1)  # Normalized across opponents by 
-                                         # dividing by num_of_players-1
         grd_ttl += totl
     return grd_ttl/num_of_players  # Averaged across all players
 
 def sum_state(results_obj, state_tupl):
     state_dist = results_obj.state_distribution
     state_sum = 0
+    print('Counting the number of CC states:')
+    i = 1
     for player in state_dist:
+        print('player ', i, 'states:')
+        i += 1
         for state_counter in player:
             states = dict(state_counter)
             print(states)
             try:
                 state_sum += states[state_tupl]
-                print(state_sum)
-            except Exception as e:
-                print(e)
+            except:
+                continue
+    print("The total number of CCs: ", state_sum)
     return state_sum
 
 class Agent:
@@ -221,10 +224,14 @@ class PdTournament:
                                     seed=1)
 
         results = tourn.play(processes=0)  
-        print("match length for each user: ", results.match_lengths)
+        print("\nMatch length for each user against other users: ", results.match_lengths)
         sum_T = 0
-        for rp in results.match_lengths:
-            srp = [sum(x) for x in rp]
+        match_len = results.match_lengths
+        for i in range(len(match_len)):
+            srp = []
+            for xi in range(len(match_len[i])):
+                match_len[i][xi].pop(xi)
+                srp.append(sum(match_len[i][xi]))
             sum_T = sum(srp)
         # Collect Group Outcome Metrics
         normal_scores = results.normalised_scores
@@ -324,12 +331,13 @@ class PdSystem:
         self.data = None
         self.id = None
         self.game = game_type
+        self.team_list = team_list
         tournament_dict = dict()
         
         # Loop through team list and construct tournament instances
         # for each team. Save each team to the tournament dictionary
         for num, team in enumerate(team_list,1):
-            player_list = [settings.name_strategy_dict[i] for i in team]
+            player_list = [settings.CD_strategy_dict[i] for i in team]
             new_tour = PdTournament(player_list, game_type)
             tournament_dict[f'Team{num}'] = new_tour
         
@@ -359,10 +367,6 @@ class PdSystem:
                 df1 = pd.concat([df1,df], axis=1)
         
         df1.index += 1  # Initialize index from 1 instead of 0
-        # print("This is df: ")
-        # print(df)
-        # print("This is df1: ")
-        # print(df1)
         # Collect team data
         min_scores = [df1[f'{i} Min Score'].values for i in list(self.team_dict)]
         avg_scores = [df1[f'{i} Avg Score'].values for i in list(self.team_dict)]
@@ -388,12 +392,15 @@ class PdSystem:
         for num, tm in enumerate(teams_):
             str_list[num] = tm.split(',')
         str_list2 = copy.deepcopy(str_list)
+        str_list = self.team_list
+        print("str_list", str_list)
+        print("team list:", self.team_list)
         for num, lst in enumerate(str_list):
             dec_list=[settings.name_dec_dict[n] for n in lst]
             dec_list = ','.join(dec_list)
             str_list[num] = dec_list
         new_str='_'.join(str_list)
-        
+        print('str str:' , new_str)
         self.id = new_str
         new_df = pd.DataFrame({'System ID' : [new_str]}, index=[1])
         self.data = pd.concat([new_df,sys_df], axis=1)
