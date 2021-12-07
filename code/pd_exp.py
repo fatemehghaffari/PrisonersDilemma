@@ -31,6 +31,7 @@ import pandas as pd
 from pathlib import Path
 import settings
 import subprocess
+from time import sleep
 
 
 # Helper Functions
@@ -123,20 +124,48 @@ def new_avg_normalised_state(results_obj, state_tupl):
 def sum_state(results_obj, state_tupl):
     state_dist = results_obj.state_distribution
     state_sum = 0
-    print('Counting the number of CC states:')
+    # print('Counting the number of CC states:') # this
     i = 1
     for player in state_dist:
-        print('player ', i, 'states:')
+        # print('player ', i, 'states:') # this
         i += 1
         for state_counter in player:
             states = dict(state_counter)
-            print(states)
+            # print(states) # this
             try:
                 state_sum += states[state_tupl]
             except:
                 continue
-    print("The total number of CCs: ", state_sum)
+    # print("The total number of CCs: ", state_sum) # this
     return state_sum
+
+def CC_threshold(results_obj, state_tupl, t):
+    state_dist = results_obj.state_distribution
+    state_sum = 0
+    i = 1
+    AllSuperGames = 0
+    GoodSuperGames = 0
+    for player in state_dist:
+        # print('player ', i, 'states:') # this
+        i += 1
+        for state_counter in player:
+            states = dict(state_counter)
+            if bool(states):
+                AllSuperGames += 1
+            # print("     ", states) # this
+            try:
+                fraction = states[state_tupl] / sum(list(states.values()))
+                # print("     ", fraction)
+                if fraction >= t:
+                    # print("     GOOD")
+                    GoodSuperGames += 1
+
+            except:
+                continue
+        # sleep(10)
+    fraction = GoodSuperGames / AllSuperGames
+    # print("The total number of CCs: ", fraction) # this
+    return fraction
 
 class Agent:
     def __init__(self, strategy):
@@ -169,7 +198,7 @@ class PdTournament:
         Saves tournament data as a csv file
     """
     
-    def __init__(self, strategy_list, game=None, reps=1):
+    def __init__(self, strategy_list, game=None, t = 0.5, reps=1):
         """
         Constructs all the necessary attributes for tournament object
         
@@ -183,7 +212,7 @@ class PdTournament:
         reps : int
             number of times to repeat tournament (default is 1)
         """
-        
+        self.CCThreshold = t
         self.player_list = strategy_list
         self.names = ','.join(sorted([n.name for n in strategy_list]))
         self.game = game
@@ -215,7 +244,7 @@ class PdTournament:
         
         # Instantiate tournament object
         roster = self.player_list
-        print('Instantiating tournament object with these players: ', self.names)
+        # print('Instantiating tournament object with these players: ', self.names) # this
         tourn = Tournament(players=roster,
                                     game=self.game,
                                     prob_end=0.1,
@@ -224,7 +253,7 @@ class PdTournament:
                                     seed=1)
 
         results = tourn.play(processes=0)  
-        print("\nMatch length for each user against other users: ", results.match_lengths)
+        # print("\nMatch length for each user against other users: ", results.match_lengths) # this
         sum_T = 0
         match_len = results.match_lengths
         for i in range(len(match_len)):
@@ -244,19 +273,22 @@ class PdTournament:
         avg_norm_cc_distribution = avg_normalised_state(results, (Action.C,Action.C))
         new_avg_norm_cc_distribution = new_avg_normalised_state(results, (Action.C,Action.C))
         avg_norm_cc_distribution_2 = sum_state(results, (Action.C,Action.C)) / sum_T
+        avg_CC_threshold = CC_threshold(results, (Action.C,Action.C), self.CCThreshold)
         data = [self.names, 
                 avg_norm_score,
                 avg_norm_score_2,
                 min_norm_score,
                 avg_norm_cc_distribution,
-                avg_norm_cc_distribution_2]
+                avg_norm_cc_distribution_2,
+                avg_CC_threshold]
         
         col = ['Tournament_Members', 
                 'Avg_Norm_Score',
                 'Avg_Norm_Score_2',
                 'Min_Norm_Score',
                 'Avg_Norm_CC_Distribution',
-                'Avg_Norm_CC_Distribution_2']
+                'Avg_Norm_CC_Distribution_2',
+                'Avg_CC_Threshold']
         
         # List manipulation to identify individual players in separate columns
         sorted_list = sorted([n.name for n in roster])
@@ -313,7 +345,7 @@ class PdSystem:
         Saves system data as a csv file
     """
     
-    def __init__(self, team_list, game_type=None):
+    def __init__(self, team_list, game_type=None, t = 0.5):
         """
         Constructs all the necessary attributes for system object
         
@@ -327,7 +359,7 @@ class PdSystem:
             will prompt the classic PD setting)
         
         """
-        
+        self.CCThreshold = t
         self.data = None
         self.id = None
         self.game = game_type
@@ -338,7 +370,7 @@ class PdSystem:
         # for each team. Save each team to the tournament dictionary
         for num, team in enumerate(team_list,1):
             player_list = [settings.CD_strategy_dict[i] for i in team]
-            new_tour = PdTournament(player_list, game_type)
+            new_tour = PdTournament(player_list, game_type, self.CCThreshold)
             tournament_dict[f'Team{num}'] = new_tour
         
         self.team_dict = tournament_dict                             
@@ -359,7 +391,8 @@ class PdSystem:
                                         'Avg_Norm_Score_2': f'{key} New Avg Score',
                                         'Min_Norm_Score': f'{key} Min Score',
                                         'Avg_Norm_CC_Distribution': f'{key} Avg CC Dist',
-                                        'Avg_Norm_CC_Distribution_2': f'{key} New Avg CC Dist'})
+                                        'Avg_Norm_CC_Distribution_2': f'{key} New Avg CC Dist',
+                                        'Avg_CC_Threshold': f'{key} Avg CC Fraction'})
             if first:
                 df1 = df
                 first = False
@@ -373,6 +406,7 @@ class PdSystem:
         new_avg_scores = [df1[f'{i} New Avg Score'].values for i in list(self.team_dict)]
         cc_dists = [df1[f'{i} Avg CC Dist'].values for i in list(self.team_dict)]
         new_cc_dists = [df1[f'{i} New Avg CC Dist'].values for i in list(self.team_dict)]
+        cc_fraction = [df1[f'{i} Avg CC Fraction'].values for i in list(self.team_dict)]
         # Compute system metrics and create new data frame
         sys_df = pd.DataFrame({'SYS MIN Score' : [np.amin(min_scores)],
                                'SYS AVG Score' : [np.average(avg_scores)],
@@ -381,7 +415,9 @@ class PdSystem:
                                'SYS CC Dist AVG' : [np.average(cc_dists)],
                                'SYS CC Dist MIN' : [np.amin(cc_dists)],
                                'SYS New CC Dist AVG' : [np.average(new_cc_dists)],
-                               'SYS New CC Dist MIN' : [np.amin(new_cc_dists)]}, index=[1])
+                               'SYS New CC Dist MIN' : [np.amin(new_cc_dists)],
+                               'SYS CC Fraction AVG' : [np.average(cc_fraction)],
+                               'SYS CC Fraction MIN' : [np.amin(cc_fraction)]}, index=[1])
 
         # Concatenate two data frames
         sys_df = pd.concat([sys_df,df1], axis=1)
@@ -393,14 +429,14 @@ class PdSystem:
             str_list[num] = tm.split(',')
         str_list2 = copy.deepcopy(str_list)
         str_list = self.team_list
-        print("str_list", str_list)
-        print("team list:", self.team_list)
+        # print("str_list", str_list) # this
+        # print("team list:", self.team_list) # this
         for num, lst in enumerate(str_list):
             dec_list=[settings.name_dec_dict[n] for n in lst]
             dec_list = ','.join(dec_list)
             str_list[num] = dec_list
         new_str='_'.join(str_list)
-        print('str str:' , new_str)
+        # print('str str:' , new_str) # this
         self.id = new_str
         new_df = pd.DataFrame({'System ID' : [new_str]}, index=[1])
         self.data = pd.concat([new_df,sys_df], axis=1)
@@ -439,7 +475,7 @@ class PdExp:
         Saves experiment data as a csv file
     """
    
-    def __init__(self, tuple_of_systems, game_type=None):
+    def __init__(self, tuple_of_systems, t = 0.5, game_type=None):
         """
         Constructs all the necessary attributes for pd experiment object
         
@@ -454,20 +490,20 @@ class PdExp:
             will prompt the classic PD setting)
         
         """
-        
+        self.CCThreshold = t
         self.sys_tuple = tuple_of_systems # list of lists with partition sets
         self.game = game_type
-        for system in tuple_of_systems:
-            systems = []
-            for team in system:
-                teams = []
-                for player in team:
-                    l = []
-                    l.append(Agent(player))
-                    tpl = tuple(l)
-                teams.append(tpl)
-            systems.append(teams)
-        self.systems = systems
+        # for system in tuple_of_systems:
+        #     systems = []
+        #     for team in system:
+        #         teams = []
+        #         for player in team:
+        #             l = []
+        #             l.append(Agent(player))
+        #             tpl = tuple(l)
+        #         teams.append(tpl)
+        #     systems.append(teams)
+        # self.systems = systems
 
     def run_experiments(self):
         """
@@ -479,9 +515,9 @@ class PdExp:
         list_len = len(self.sys_tuple)
         #proc_list = []
         for num, sys in enumerate(self.sys_tuple, 1):
-            print('partition list: ', f'{sys!r}')
+            # print('partition list: ', f'{sys!r}') # this
 
-            sys_n = PdSystem(sys, self.game)
+            sys_n = PdSystem(sys, self.game, self.CCThreshold)
             sys_n.compute_data()
 
             if first:
@@ -489,17 +525,24 @@ class PdExp:
                 first = False
             else:
                 exp_df = pd.concat([exp_df, sys_n.data])
-            print('***Processing number ', num)
+            # print('***Processing number ', num) # this
             if (num % 100 == 0):
                 self.data = exp_df
                 ###### Change file_name string below when changing num of 
                 ###### strategies (n) used or the number of players in a team 
                 ###### (k)
                 self.save_data('Data/Desk/',f'Comb_Sys1to{num}_12strat_4plx3partitions')
-                print(f'System {num} completed and batch saved!')
+                # print(f'System {num} completed and batch saved!') # this
             if (num % 1000 == 0):
-                print(f'***Reached system {num}. Progress: ', num/list_len, '%')
+                print(f'***Reached system {num}. Progress: ', num/list_len, '%') # this
         self.data = exp_df
+
+    def return_data(self):
+        """ 
+        Returns experiment data as a pandas df 
+
+        """
+        return self.data
 
     def save_data(self, path_to_directory, descrip_name):
         """ 
@@ -516,10 +559,10 @@ class PdExp:
         """
         # Make directory if it does not exist
         Path(path_to_directory).mkdir(parents=True, exist_ok=True)
-        print("I am saving the data")
+        # print("I am saving the data") # this
         if self.game is None:
             R,P,S,T = game.Game().RPST()
         else:
             R,P,S,T = self.game.RPST()
-        print("The file name is: ", path_to_directory+f'{descrip_name}_RPST_{R!r}_{P!r}_{S!r}_{T!r}.csv')
+        # print("The file name is: ", path_to_directory+f'{descrip_name}_RPST_{R!r}_{P!r}_{S!r}_{T!r}.csv') # this
         self.data.to_csv(path_to_directory+f'{descrip_name}_RPST_{R!r}_{P!r}_{S!r}_{T!r}.csv')
