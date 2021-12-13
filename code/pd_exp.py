@@ -198,7 +198,7 @@ class PdTournament:
         Saves tournament data as a csv file
     """
     
-    def __init__(self, strategy_list, game=None, t = 0.5, reps=1):
+    def __init__(self, strategy_list, game=None, t = [0.5], reps=1):
         """
         Constructs all the necessary attributes for tournament object
         
@@ -273,14 +273,26 @@ class PdTournament:
         avg_norm_cc_distribution = avg_normalised_state(results, (Action.C,Action.C))
         new_avg_norm_cc_distribution = new_avg_normalised_state(results, (Action.C,Action.C))
         avg_norm_cc_distribution_2 = sum_state(results, (Action.C,Action.C)) / sum_T
-        avg_CC_threshold = CC_threshold(results, (Action.C,Action.C), self.CCThreshold)
+        avg_CC_threshold = []
+        for th in self.CCThreshold:
+            avg_CC_threshold.append(CC_threshold(results, (Action.C,Action.C), th))
         data = [self.names, 
                 avg_norm_score,
                 avg_norm_score_2,
                 min_norm_score,
                 avg_norm_cc_distribution,
                 avg_norm_cc_distribution_2,
-                avg_CC_threshold]
+                avg_CC_threshold[0],
+                avg_CC_threshold[1],
+                avg_CC_threshold[2],
+                avg_CC_threshold[3],
+                avg_CC_threshold[4],
+                avg_CC_threshold[5],
+                avg_CC_threshold[6],
+                avg_CC_threshold[7],
+                avg_CC_threshold[8],
+                avg_CC_threshold[9]]
+            
         
         col = ['Tournament_Members', 
                 'Avg_Norm_Score',
@@ -288,7 +300,16 @@ class PdTournament:
                 'Min_Norm_Score',
                 'Avg_Norm_CC_Distribution',
                 'Avg_Norm_CC_Distribution_2',
-                'Avg_CC_Threshold']
+                'Avg_CC_Threshold_0.1',
+                'Avg_CC_Threshold_0.2',
+                'Avg_CC_Threshold_0.3',
+                'Avg_CC_Threshold_0.4',
+                'Avg_CC_Threshold_0.5',
+                'Avg_CC_Threshold_0.6',
+                'Avg_CC_Threshold_0.7',
+                'Avg_CC_Threshold_0.8',
+                'Avg_CC_Threshold_0.9',
+                'Avg_CC_Threshold_1']
         
         # List manipulation to identify individual players in separate columns
         sorted_list = sorted([n.name for n in roster])
@@ -345,7 +366,7 @@ class PdSystem:
         Saves system data as a csv file
     """
     
-    def __init__(self, team_list, game_type=None, t = 0.5):
+    def __init__(self, team_list, game_type=None, t = [0.5]):
         """
         Constructs all the necessary attributes for system object
         
@@ -392,7 +413,16 @@ class PdSystem:
                                         'Min_Norm_Score': f'{key} Min Score',
                                         'Avg_Norm_CC_Distribution': f'{key} Avg CC Dist',
                                         'Avg_Norm_CC_Distribution_2': f'{key} New Avg CC Dist',
-                                        'Avg_CC_Threshold': f'{key} Avg CC Fraction'})
+                                        'Avg_CC_Threshold_0.1': f'{key} Avg CC Fraction 0.1',
+                                        'Avg_CC_Threshold_0.2': f'{key} Avg CC Fraction 0.2',
+                                        'Avg_CC_Threshold_0.3': f'{key} Avg CC Fraction 0.3',
+                                        'Avg_CC_Threshold_0.4': f'{key} Avg CC Fraction 0.4',
+                                        'Avg_CC_Threshold_0.5': f'{key} Avg CC Fraction 0.5',
+                                        'Avg_CC_Threshold_0.6': f'{key} Avg CC Fraction 0.6',
+                                        'Avg_CC_Threshold_0.7': f'{key} Avg CC Fraction 0.7',
+                                        'Avg_CC_Threshold_0.8': f'{key} Avg CC Fraction 0.8',
+                                        'Avg_CC_Threshold_0.9': f'{key} Avg CC Fraction 0.9',
+                                        'Avg_CC_Threshold_1': f'{key} Avg CC Fraction 1',})
             if first:
                 df1 = df
                 first = False
@@ -406,7 +436,16 @@ class PdSystem:
         new_avg_scores = [df1[f'{i} New Avg Score'].values for i in list(self.team_dict)]
         cc_dists = [df1[f'{i} Avg CC Dist'].values for i in list(self.team_dict)]
         new_cc_dists = [df1[f'{i} New Avg CC Dist'].values for i in list(self.team_dict)]
-        cc_fraction = [df1[f'{i} Avg CC Fraction'].values for i in list(self.team_dict)]
+        cc_fraction_01 = [df1[f'{i} Avg CC Fraction 0.1'].values for i in list(self.team_dict)]
+        cc_fraction_02 = [df1[f'{i} Avg CC Fraction 0.2'].values for i in list(self.team_dict)]
+        cc_fraction_03 = [df1[f'{i} Avg CC Fraction 0.3'].values for i in list(self.team_dict)]
+        cc_fraction_04 = [df1[f'{i} Avg CC Fraction 0.4'].values for i in list(self.team_dict)]
+        cc_fraction_05 = [df1[f'{i} Avg CC Fraction 0.5'].values for i in list(self.team_dict)]
+        cc_fraction_06 = [df1[f'{i} Avg CC Fraction 0.6'].values for i in list(self.team_dict)]
+        cc_fraction_07 = [df1[f'{i} Avg CC Fraction 0.7'].values for i in list(self.team_dict)]
+        cc_fraction_08 = [df1[f'{i} Avg CC Fraction 0.8'].values for i in list(self.team_dict)]
+        cc_fraction_09 = [df1[f'{i} Avg CC Fraction 0.9'].values for i in list(self.team_dict)]
+        cc_fraction_10 = [df1[f'{i} Avg CC Fraction 1'].values for i in list(self.team_dict)]
         # Compute system metrics and create new data frame
         sys_df = pd.DataFrame({'SYS MIN Score' : [np.amin(min_scores)],
                                'SYS AVG Score' : [np.average(avg_scores)],
@@ -416,8 +455,26 @@ class PdSystem:
                                'SYS CC Dist MIN' : [np.amin(cc_dists)],
                                'SYS New CC Dist AVG' : [np.average(new_cc_dists)],
                                'SYS New CC Dist MIN' : [np.amin(new_cc_dists)],
-                               'SYS CC Fraction AVG' : [np.average(cc_fraction)],
-                               'SYS CC Fraction MIN' : [np.amin(cc_fraction)]}, index=[1])
+                               'SYS CC Fraction 01 AVG' : [np.average(cc_fraction_01)],
+                               'SYS CC Fraction 01 MIN' : [np.amin(cc_fraction_01)],
+                               'SYS CC Fraction 02 AVG' : [np.average(cc_fraction_02)],
+                               'SYS CC Fraction 02 MIN' : [np.amin(cc_fraction_02)],
+                               'SYS CC Fraction 03 AVG' : [np.average(cc_fraction_03)],
+                               'SYS CC Fraction 03 MIN' : [np.amin(cc_fraction_03)],
+                               'SYS CC Fraction 04 AVG' : [np.average(cc_fraction_04)],
+                               'SYS CC Fraction 04 MIN' : [np.amin(cc_fraction_04)],
+                               'SYS CC Fraction 05 AVG' : [np.average(cc_fraction_05)],
+                               'SYS CC Fraction 05 MIN' : [np.amin(cc_fraction_05)],
+                               'SYS CC Fraction 06 AVG' : [np.average(cc_fraction_06)],
+                               'SYS CC Fraction 06 MIN' : [np.amin(cc_fraction_06)],
+                               'SYS CC Fraction 07 AVG' : [np.average(cc_fraction_07)],
+                               'SYS CC Fraction 07 MIN' : [np.amin(cc_fraction_07)],
+                               'SYS CC Fraction 08 AVG' : [np.average(cc_fraction_08)],
+                               'SYS CC Fraction 08 MIN' : [np.amin(cc_fraction_08)],
+                               'SYS CC Fraction 09 AVG' : [np.average(cc_fraction_09)],
+                               'SYS CC Fraction 09 MIN' : [np.amin(cc_fraction_09)],
+                               'SYS CC Fraction 10 AVG' : [np.average(cc_fraction_10)],
+                               'SYS CC Fraction 10 MIN' : [np.amin(cc_fraction_10)],}, index=[1])
 
         # Concatenate two data frames
         sys_df = pd.concat([sys_df,df1], axis=1)
@@ -475,7 +532,7 @@ class PdExp:
         Saves experiment data as a csv file
     """
    
-    def __init__(self, tuple_of_systems, t = 0.5, game_type=None):
+    def __init__(self, tuple_of_systems, t = [0.5], game_type=None):
         """
         Constructs all the necessary attributes for pd experiment object
         
